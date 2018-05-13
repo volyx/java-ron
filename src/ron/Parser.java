@@ -9,8 +9,6 @@ import static ron.UUID.UUID_NAME_FLAG;
 import static ron.UUID.ZERO_UUID;
 
 
-
-
 // Parse consumes one op from data[], unless the buffer ends earlier.
 // Fills atoms[]
 public class Parser {
@@ -25,9 +23,9 @@ public static final int VALUE = 0;
 public static final int	ORIGIN = 1;
 
 
-// line 26 "ragel/java-parser.rl"
+// line 24 "ragel/java-parser.rl"
 
-// line 31 "java/src/ron/Parser.java"
+// line 29 "java/src/ron/Parser.java"
 private static byte[] init__RON_actions_0()
 {
 	return new byte [] {
@@ -315,13 +313,13 @@ static final int RON_error = 0;
 static final int RON_en_main = 14;
 
 
+// line 25 "ragel/java-parser.rl"
+
+// line 26 "ragel/java-parser.rl"
+
 // line 27 "ragel/java-parser.rl"
 
 // line 28 "ragel/java-parser.rl"
-
-// line 29 "ragel/java-parser.rl"
-
-// line 30 "ragel/java-parser.rl"
 
 
 static <T> T[] append(T[] arr, T element) {
@@ -333,21 +331,21 @@ static <T> T[] append(T[] arr, T element) {
 
  public static Frame parseFrame(Frame frame) {
 
-         frame.Parser = new ParserState();
+         // frame.Parser = new ParserState();
          ParserState ps = frame.Parser;
 
          switch (ps.state) {
                  case RON_error:
-                     if (ps.position!=0) {
+                     if (ps.pos!=0) {
                          return frame;
                      }
                     
-// line 346 "java/src/ron/Parser.java"
+// line 344 "java/src/ron/Parser.java"
 	{
 	( ps.state) = RON_start;
 	}
 
-// line 50 "ragel/java-parser.rl"
+// line 48 "ragel/java-parser.rl"
                      frame.position = -1;
                      // frame.atoms = frame._atoms[:4]
                      frame.atoms = Arrays.copyOfRange(frame._atoms, 0, 4);
@@ -357,21 +355,21 @@ static <T> T[] append(T[] arr, T element) {
                      return frame;
 
                  case RON_start:
-                     ps.off = ps.position;
+                     ps.off = ps.pos;
                      // frame.atoms = frame._atoms[:4];
                      frame.atoms = Arrays.copyOfRange(frame._atoms, 0, 4);
                      ps.atm = 0; ps.hlf = 0; ps.dgt = 0;
                      break;
              }
 
-             if (ps.position >= frame.Body.length) {
+             if (ps.pos >= frame.Body.length()) {
                  if (!ps.streaming) {
                      ps.state = RON_error;
                  }
                  return frame;
              }
 
-            int pe = frame.Body.length; int eof = frame.Body.length;
+             int pe = frame.Body.length(); int eof = frame.Body.length();
              int n = 0;
              // int _ = eof;
              // int _ = pe ;// FIXME kill
@@ -383,10 +381,10 @@ static <T> T[] append(T[] arr, T element) {
              int atm = ps.atm; int hlf = ps.hlf; int dgt = ps.dgt;
              Atom[] atoms = frame.atoms;
              int e_sgn = 0, e_val = 0, e_frac = 0;
-             int p = ps.position;
+             int p = ps.pos;
 
             
-// line 390 "java/src/ron/Parser.java"
+// line 388 "java/src/ron/Parser.java"
 	{
 	int _klen;
 	int _trans = 0;
@@ -420,9 +418,9 @@ case 1:
 				break;
 
 			_mid = _lower + ((_upper-_lower) >> 1);
-			if ( ( frame.Body)[p] < _RON_trans_keys[_mid] )
+			if ( ( frame.Body).get(p) < _RON_trans_keys[_mid] )
 				_upper = _mid - 1;
-			else if ( ( frame.Body)[p] > _RON_trans_keys[_mid] )
+			else if ( ( frame.Body).get(p) > _RON_trans_keys[_mid] )
 				_lower = _mid + 1;
 			else {
 				_trans += (_mid - _keys);
@@ -443,9 +441,9 @@ case 1:
 				break;
 
 			_mid = _lower + (((_upper-_lower) >> 1) & ~1);
-			if ( ( frame.Body)[p] < _RON_trans_keys[_mid] )
+			if ( ( frame.Body).get(p) < _RON_trans_keys[_mid] )
 				_upper = _mid - 2;
-			else if ( ( frame.Body)[p] > _RON_trans_keys[_mid+1] )
+			else if ( ( frame.Body).get(p) > _RON_trans_keys[_mid+1] )
 				_lower = _mid + 2;
 			else {
 				_trans += ((_mid - _keys)>>1);
@@ -474,14 +472,14 @@ case 1:
 	case 1:
 // line 9 "ragel/../ragel/./uuid-grammar.rl"
 	{
-        dgt = (int) ABC[( frame.Body)[p]] + 4;
+        dgt = ABC[( frame.Body).get(p)] + 4;
         atoms[atm].trim6(hlf, dgt);
     }
 	break;
 	case 2:
 // line 14 "ragel/../ragel/./uuid-grammar.rl"
 	{
-        atoms[atm].set6(hlf, dgt, ABC[( frame.Body)[p]]);
+        atoms[atm].set6(hlf, dgt, ABC[( frame.Body).get(p)]);
         dgt++;
         if (dgt>10) {
             { p += 1; _goto_targ = 5; if (true)  continue _goto;}
@@ -527,7 +525,7 @@ case 1:
 // line 45 "ragel/../ragel/./uuid-grammar.rl"
 	{
         hlf = ORIGIN;
-	atoms[atm].reset4(ORIGIN, 15, ABC[( frame.Body)[p]]);
+	atoms[atm].reset4(ORIGIN, 15, ABC[( frame.Body).get(p)]);
     }
 	break;
 	case 10:
@@ -553,7 +551,7 @@ case 1:
 	case 13:
 // line 16 "ragel/../ragel/base-grammar.rl"
 	{
-        n = (int)(ABC[( frame.Body)[p]]);
+        n = (ABC[( frame.Body).get(p)]);
         hlf = 0;
         dgt = 0;
         if (n < atm) { 
@@ -565,7 +563,7 @@ case 1:
         } else { 
             // next UUID
             atm = n;
-            ps.omitted -= 1 << (int) n;
+            ps.omitted -= 1 << n;
         }
     }
 	break;
@@ -597,7 +595,7 @@ case 1:
 	case 18:
 // line 48 "ragel/../ragel/base-grammar.rl"
 	{
-        if (( frame.Body)[p]=='-') {
+        if (( frame.Body).get(p)=='-') {
 		atoms[atm].set1(ORIGIN, 60);
         }
     }
@@ -605,7 +603,7 @@ case 1:
 	case 19:
 // line 53 "ragel/../ragel/base-grammar.rl"
 	{
-	atoms[atm].arab64( VALUE, ( frame.Body)[p] - '0' );
+	atoms[atm].arab64( VALUE, ( frame.Body).get(p) - '0' );
         // TODO max size for int/float/string
     }
 	break;
@@ -623,14 +621,14 @@ case 1:
 	case 22:
 // line 63 "ragel/../ragel/base-grammar.rl"
 	{
-	atoms[atm].arab64( VALUE, ( frame.Body)[p] - '0' );
+	atoms[atm].arab64( VALUE, ( frame.Body).get(p) - '0' );
         // TODO max size for int/float/string
     }
 	break;
 	case 23:
 // line 67 "ragel/../ragel/base-grammar.rl"
 	{
-        if (( frame.Body)[p]=='-') {
+        if (( frame.Body).get(p)=='-') {
             atoms[atm].set1(ORIGIN, 60);
         }
     }
@@ -638,7 +636,7 @@ case 1:
 	case 24:
 // line 72 "ragel/../ragel/base-grammar.rl"
 	{
-	atoms[atm].arab64( VALUE, ( frame.Body)[p] - '0' );
+	atoms[atm].arab64( VALUE, ( frame.Body).get(p) - '0' );
         atoms[atm].inc16( ORIGIN, 1 );
         // TODO max size for int/float/string
     }
@@ -646,7 +644,7 @@ case 1:
 	case 25:
 // line 77 "ragel/../ragel/base-grammar.rl"
 	{
-        if (( frame.Body)[p]=='-') {
+        if (( frame.Body).get(p)=='-') {
 		atoms[atm].set1(ORIGIN, 61);
         }
     }
@@ -654,7 +652,7 @@ case 1:
 	case 26:
 // line 82 "ragel/../ragel/base-grammar.rl"
 	{
-	atoms[atm].arab16(ORIGIN, ( frame.Body)[p]-'0');
+	atoms[atm].arab16(ORIGIN, ( frame.Body).get(p)-'0');
         // TODO max size for int/float/string
     }
 	break;
@@ -709,7 +707,7 @@ case 1:
 	case 34:
 // line 118 "ragel/../ragel/base-grammar.rl"
 	{
-        frame.term = (int) ABC[( frame.Body)[p]];
+        frame.term = ABC[( frame.Body).get(p)];
     }
 	break;
 	case 35:
@@ -748,7 +746,7 @@ case 1:
         { p += 1; _goto_targ = 5; if (true)  continue _goto;}
     }
 	break;
-// line 752 "java/src/ron/Parser.java"
+// line 750 "java/src/ron/Parser.java"
 			}
 		}
 	}
@@ -831,7 +829,7 @@ case 4:
 	{
     }
 	break;
-// line 835 "java/src/ron/Parser.java"
+// line 833 "java/src/ron/Parser.java"
 		}
 	}
 	}
@@ -841,11 +839,11 @@ case 5:
 	break; }
 	}
 
-// line 93 "ragel/java-parser.rl"
+// line 91 "ragel/java-parser.rl"
 
 
              ps.atm = atm; ps.hlf = hlf; ps.dgt = dgt;
-             ps.position = p;
+             ps.pos = p;
              frame.atoms = atoms;
 
              switch (ps.state) {
@@ -887,9 +885,9 @@ case 5:
     }
 
       
-// line 138 "ragel/java-parser.rl"
+// line 136 "ragel/java-parser.rl"
       
-// line 893 "java/src/ron/Parser.java"
+// line 891 "java/src/ron/Parser.java"
 private static byte[] init__UUID_actions_0()
 {
 	return new byte [] {
@@ -1016,7 +1014,7 @@ static final int UUID_error = 0;
 static final int UUID_en_main = 1;
 
 
-// line 139 "ragel/java-parser.rl"
+// line 137 "ragel/java-parser.rl"
 
 
     // func ()
@@ -1033,12 +1031,12 @@ static final int UUID_en_main = 1;
         Atom[] atoms = new Atom[] {new Atom(ctx_uuid)};
 
     	
-// line 1037 "java/src/ron/Parser.java"
+// line 1035 "java/src/ron/Parser.java"
 	{
 	cs = UUID_start;
 	}
 
-// line 1042 "java/src/ron/Parser.java"
+// line 1040 "java/src/ron/Parser.java"
 	{
 	int _klen;
 	int _trans = 0;
@@ -1126,7 +1124,7 @@ case 1:
 	case 1:
 // line 9 "ragel/../ragel/uuid-grammar.rl"
 	{
-        dgt = (int) ABC[data[p]] + 4;
+        dgt = ABC[data[p]] + 4;
         atoms[atm].trim6(hlf, dgt);
     }
 	break;
@@ -1177,7 +1175,7 @@ case 1:
 	atoms[atm].reset4(ORIGIN, 15, ABC[data[p]]);
     }
 	break;
-// line 1181 "java/src/ron/Parser.java"
+// line 1179 "java/src/ron/Parser.java"
 			}
 		}
 	}
@@ -1214,7 +1212,7 @@ case 4:
         atoms[atm].setOrigin(UUID_NAME_FLAG);
     }
 	break;
-// line 1218 "java/src/ron/Parser.java"
+// line 1216 "java/src/ron/Parser.java"
 		}
 	}
 	}
@@ -1224,7 +1222,7 @@ case 5:
 	break; }
 	}
 
-// line 161 "ragel/java-parser.rl"
+// line 159 "ragel/java-parser.rl"
 
 
         if (cs < UUID_first_final || dgt > 10) {

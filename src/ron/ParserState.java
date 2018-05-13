@@ -8,10 +8,25 @@ public class ParserState {
     // byte offset of the current op
     public int off;
     // parsing byte offset
-    public int position;
+    public int pos;
     // parser mode: streaming (might get more bytes) / block (complete frame)
     public boolean streaming;
     // which spec uuids are omitted/defaults in the current op
     // uint8
     public int omitted;
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("ParserState{");
+        sb.append("atm=").append(atm);
+        sb.append(", hlf=").append(hlf);
+        sb.append(", dgt=").append(dgt);
+        sb.append(", state=").append(state);
+        sb.append(", off=").append(off);
+        sb.append(", pos=").append(pos);
+        sb.append(", streaming=").append(streaming);
+        sb.append(", omitted=").append(omitted);
+        sb.append('}');
+        return sb.toString();
+    }
 }

@@ -9,7 +9,6 @@ public class UUID implements Comparable<UUID> {
 
 	public static final long UUID_NAME_FLAG = Long.parseUnsignedLong(Long.toString(UUID_NAME)) << 60;
 
-
 	public static int INT60LEN = 10;
 	public static long UUID_NAME_UPPER_BITS = Long.parseUnsignedLong(Long.toString(UUID_NAME)) << 60;
 	public static long INT60_FULL = Long.parseUnsignedLong(Long.toString(1)) << 60 - 1;
@@ -17,6 +16,14 @@ public class UUID implements Comparable<UUID> {
 	public static long INT60_INFINITY = Long.parseUnsignedLong(Long.toString(63)) << (6 * 9);
 	public static long INT60_FLAGS = Long.parseUnsignedLong(Long.toString(15)) << 60;
 	public static UUID ZERO_UUID = new UUID(0, 0);
+
+	public static UUID NEVER_UUID = newNameUUID(INT60_INFINITY, 0);
+
+	public static UUID COMMENT_UUID = NEVER_UUID;
+
+	public static UUID ERROR_UUID = newNameUUID(INT60_ERROR, 0);
+
+
 
 	public final long[] uuid = new long[2];
 
@@ -96,8 +103,8 @@ public class UUID implements Comparable<UUID> {
 	}
 
 
-	public long variety() {
-		return this.uuid[0] >> 60;
+	public int variety() {
+		return (int) this.uuid[0] >> 60;
 	}
 
 	public byte sign() {
@@ -129,11 +136,11 @@ public class UUID implements Comparable<UUID> {
 		}
 	}
 
-	public UUID newRonUUID(long scheme, long variety, long value, long origin) {
+	public static UUID newRonUUID(long scheme, long variety, long value, long origin) {
 		return new UUID(value | (variety & 15) << 60, origin | (scheme & 15) << 60);
 	}
 
-	public UUID newUUID(long scheme, long value, long origin) {
+	public static UUID newUUID(long scheme, long value, long origin) {
 		return newRonUUID(scheme, 0, value, origin);
 	}
 
@@ -141,7 +148,7 @@ public class UUID implements Comparable<UUID> {
 		return newUUID(UUID_EVENT, time, origin);
 	}
 
-	public UUID newNameUUID(long time, long origin) {
+	public static UUID newNameUUID(long time, long origin) {
 		return newUUID(UUID_NAME, time, origin);
 	}
 
@@ -150,9 +157,8 @@ public class UUID implements Comparable<UUID> {
 	}
 
 	// use for static strings only - panics on error
-	public UUID newName(String name) {
-		UUID nam = Parse.parseUUIDString(name);
-		return nam;
+	public static UUID newName(String name) {
+		return Parse.parseUUIDString(name);
 	}
 
 	public UUID newError(String name) {

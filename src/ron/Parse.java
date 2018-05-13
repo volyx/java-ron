@@ -14,19 +14,20 @@ public class Parse {
 		return Parser.parseUUID(ZERO_UUID, data);
 	}
 
-//	func ParseFrame(data []byte) Frame { // TODO swap with OpenFrame
-//		return OpenFrame(data)
-//	}
-//
-//	func ParseFrameString(frame string) Frame {
-//		return ParseFrame([]byte(frame))
-//	}
-//
-//	func ParseStringBatch(strFrames []string) Batch {
-//		ret := Batch{}
-//		for _, s := range strFrames {
-//			ret = append(ret, ParseFrameString(s))
-//		}
-//		return ret
-//	}
+	public static Frame parseFrame(byte[] data) { // TODO swap with OpenFrame
+		return Frame.openFrame(data);
+	}
+
+	public static Frame parseFrameString(String frame) {
+		return parseFrame(frame.getBytes(StandardCharsets.UTF_8));
+	}
+
+	public static Batch parseStringBatch(String[] strFrames) {
+		Batch ret = new Batch();
+		ret.frames = new Frame[strFrames.length];
+		for (int i = 0; i < strFrames.length; i++) {
+			ret.frames[i] = parseFrameString(strFrames[i]);
+		}
+		return ret;
+	}
 }

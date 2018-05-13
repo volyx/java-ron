@@ -1,12 +1,19 @@
 package ron;
 
+import java.util.Arrays;
 
 import static ron.Frame.DIGIT_OFFSETS;
 import static ron.Frame.PREFIX_MASKS;
+import static ron.Parser.ORIGIN;
 
 public class Atom extends UUID {
 //	public static final long INT60_FLAGS = Long.parseUnsignedLong(Long.toString(public static final long INT60_FLAGS = ))  << 60;
-	public static final long INT60_FLAGS = 15 << 60;
+	public static final long INT32_FULL = (1L << 32) - 1;
+	public static final long INT60_FLAGS = 15L << 60;
+	public static final long BIT60 = 1L << 60;
+	public static final long BIT61 = 1L << 61;
+	public static final int INT16_FULL = (1 << 16) - 1;
+	public static UUID ZERO_UUID_ATOM = new Atom(ZERO_UUID);
 
 	public Atom(long value, long origin) {
 		super(value, origin);
@@ -24,8 +31,8 @@ public class Atom extends UUID {
 		uuid[half] |= value << DIGIT_OFFSETS[dgt]; // FIXME reverse numbering
 	}
 
-	public void set2(int origin, int i, int atomUuid) {
-		throw new UnsupportedOperationException();
+	public void set2(int half, long idx, long value) {
+		uuid[half] |= value << (idx << 1);
 	}
 
 	public void trim6(int half, int dgt) {
@@ -51,8 +58,9 @@ public class Atom extends UUID {
 		uuid[half] |= value << (idx << 2);
 	}
 
-	public void arab64(int value, int i) {
-		throw new UnsupportedOperationException();
+	public void arab64(int idx, int value) {
+		uuid[idx] *= 10;
+		uuid[idx] += (long) value;
 	}
 
 	public void set1(int half, int idx) {
@@ -75,8 +83,38 @@ public class Atom extends UUID {
 		this.uuid[1] = origin;
 	}
 
-	public int Type() {
-		throw new UnsupportedOperationException();
+	public int type() {
+		return (int) uuid[1] >> 62;
 	}
 
+	public long integer() {
+		int neg = (int) uuid[1] & (1 << 60);
+		long ret = uuid[0];
+		if (neg == 0) {
+			return ret;
+		} else {
+			return -ret;
+		}
+	}
+
+	public long  Type() {
+		return uuid[1] >> 62;
+	}
+
+	public int pow() {
+		Atom a = this;
+		int pow = (int) (a.uuid[ORIGIN] & INT16_FULL);
+		if ((a.uuid[ORIGIN] & BIT61) != 0) {
+			pow = -pow;
+		}
+		pow -= (a.uuid[ORIGIN] >> 16) & INT16_FULL;
+		return pow;
+	}
+
+	public byte[] escString(Slice body) {
+		int from = (int) uuid[0] >> 32;
+		int till = (int) (uuid[0] & INT32_FULL);
+		// FIXME check if binary;
+		return Arrays.copyOfRange(body.array(), from, till);
+	}
 }
