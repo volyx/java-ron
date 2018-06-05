@@ -36,16 +36,27 @@ public class FrameAppend {
 	public static String ZEROS10 = "0000000000";
 
 	// FormatInt outputs a 60-bit "Base64x64" int into the output slice
+//	func FormatInt(output []byte, value uint64) []byte {
+//		tail := bits.TrailingZeros64(value)
+//		if tail > 54 {
+//			tail = 54
+//		}
+//		tail -= tail % 6
+//		for i := 54; i >= tail; i -= 6 {
+//			output = append(output, BASE64[(value>>uint(i))&63])
+//		}
+//		return output
+//	}
+
+	// FormatInt outputs a 60-bit "Base64x64" int into the output slice
 	public static Slice formatInt(Slice output, long value) {
 		int tail = Long.numberOfTrailingZeros(value);
 		if (tail > 54) {
 			tail = 54;
 		}
 		tail -= tail % 6;
-		int j = 0;
 		for (int i = 54; i >= tail; i -= 6) {
-			output.set(j, Const.BASE64.getBytes(StandardCharsets.UTF_8)[(int) (value >> i & 63)]);
-			j++;
+			output = output.append(Const.BASE64.getBytes(StandardCharsets.UTF_8)[(int) (value >> i & 63)]);
 		}
 		return output;
 	}
@@ -58,6 +69,7 @@ public class FrameAppend {
 		if (prefix >= 4 * 6) {
 			prefix -= prefix % 6;
 			value = (value << (prefix)) & INT60_FULL;
+			Slice.checkElementIndex(prefix/6 - 4, PREFIX_PUNCT.length);
 			byte pchar = PREFIX_PUNCT[prefix/6 - 4];
 			output = output.append(pchar);
 			if (value != 0) {
@@ -70,7 +82,7 @@ public class FrameAppend {
 	}
 
 	public static int int60Prefix(long a, long b) {
-		return Long.numberOfLeadingZeros(((a^b) & INT60_FULL) - 4);
+		return Long.numberOfLeadingZeros((a^b) & INT60_FULL) - 4;
 	}
 
 
@@ -89,7 +101,7 @@ public class FrameAppend {
 	public static Slice formatUUID(Slice buf, UUID uuid)  {
 		int variety = uuid.variety();
 		if (variety != 0) {
-			buf = Slice.append(BASE_PUNCT[variety], '/');
+			buf = buf.append(BASE_PUNCT[variety]).append('/');
 		}
 		buf = formatInt(buf, uuid.value());
 		if (uuid.origin() != UUID_NAME_UPPER_BITS) {
@@ -130,4 +142,5 @@ public class FrameAppend {
 		int bi = (int) b;
 		return ((IS_BASE[bi >> 6] >> (bi & 63)) & 1) != 0;
 	}
+
 }

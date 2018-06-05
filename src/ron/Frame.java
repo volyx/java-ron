@@ -1,7 +1,9 @@
 package ron;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static java.util.Arrays.copyOfRange;
 import static ron.Atom.BIT60;
@@ -49,13 +51,49 @@ public class Frame {
 		for (int i = 0; i < _atoms.length; i++) {
             _atoms[i] = new Atom(0L, 0L);
         }
+//        for (int i = 0; i < atoms.length; i++) {
+//            atoms[i] = new Atom(0L, 0L);
+//        }
+        atoms = new Atom[0];
     }
 
-    public static Frame openFrame(byte[] data) {
+//	func OpenFrame(data []byte) Frame {
+//		frame := Frame{}
+//		frame.Body = data
+//		frame.Parse()
+//		return frame
+//	}
+
+    public static Frame openFrame(Slice data) {
         Frame frame = new Frame();
-        frame.Body = new Slice(data);
+        frame.Body = data;
         return ron.Parser.parseFrame(frame);
     }
+
+//	func MakeFormattedFrame(format uint, prealloc_bytes int) (ret Frame) {
+//		ret.Body = make([]byte, 0, prealloc_bytes)
+//		ret.Serializer.Format = format
+//		return
+//	}
+
+	public static Frame makeFrame(int prealloc_bytes) {
+		Frame frame = new Frame();
+		frame.Body = new Slice(new byte[prealloc_bytes], 0);
+		return frame;
+	}
+
+//	func MakeFrame(prealloc_bytes int) (ret Frame) {
+//		ret.Body = make([]byte, 0, prealloc_bytes)
+//		return
+//	}
+
+//	func ParseStream(buf []byte) Frame {
+//		ret := MakeFrame(1000 + len(buf))
+//		ret.AppendBytes(buf)
+//		ret.Parser.streaming = true
+//		ret.Next()
+//		return ret
+//	}
 
 	public UUID UUID(int idx) {
 		return new UUID(this.atoms[idx]);
@@ -67,7 +105,7 @@ public class Frame {
 	}
 
 
-	public static Frame newBufferFrame(byte[] data) {
+	public static Frame newBufferFrame(Slice data) {
         return ron.Parse.parseFrame(data);
     }
 
@@ -83,58 +121,25 @@ public class Frame {
         Frame left = new Frame();
 		left.Body = new Slice(Arrays.copyOfRange(frame.Body.array(), 0, frame.Parser.off));
 		left = ron.Parser.parseFrame(left);
-		Frame right = newBufferFrame(new byte[128 + frame.Body.length() - frame.Parser.pos]);
+		Frame right = newBufferFrame(new Slice(new byte[128 + frame.Body.length() - frame.Parser.pos], 0));
         right.append(frame);
         right.appendBytes(frame.rest());
         return Pair.create(left, right);
     }
 
+	public void appendAll(Frame i) {
+		if (i.isEmpty()) {
+			return;
+		}
+		while (!i.eof()) {
+			append(i);
+			i.next();
+		}
+	}
 
-//	func (frame *Frame) Append(other Frame) {
-//
-//		flags := frame.Serializer.Format
-//		start := len(frame.Body)
-//		if len(frame.Body) > 0 && (0 != flags&FORMAT_OP_LINES || (0 != flags&FORMAT_FRAME_LINES && !other.IsFramed())) {
-//			frame.Body = append(frame.Body, '\n')
-//			if 0 != flags&FORMAT_INDENT && !other.IsHeader() {
-//				frame.Body = append(frame.Body, "    "...)
-//			}
-//		} else if 0 != flags&FORMAT_HEADER_SPACE && frame.IsHeader() {
-//			frame.Body = append(frame.Body, ' ')
-//		}
-//
-//		if len(frame.atoms) == 0 {
-//			frame.atoms = frame._atoms[:4]
-//		}
-//		frame.appendSpec(other)
-//
-//		if 0 != flags&FORMAT_GRID {
-//			rest := 4*22 - (len(frame.Body) - start)
-//			frame.Body = append(frame.Body, SPACES88[:rest]...)
-//		}
-//
-//		frame.appendAtoms(other)
-//
-//		defaultTerm := TERM_REDUCED
-//		if frame.term == TERM_RAW {
-//			defaultTerm = TERM_RAW
-//		}
-//
-//		if other.term != defaultTerm || other.Count() == 0 {
-//			frame.Body = append(frame.Body, TERM_PUNCT[other.term])
-//		}
-//
-//		if len(other.atoms) > len(frame.atoms) {
-//			copy(frame.atoms, other.atoms[:len(frame.atoms)])
-//			frame.atoms = append(frame.atoms, other.atoms[len(frame.atoms)])
-//		} else {
-//			copy(frame.atoms, other.atoms)
-//			frame.atoms = frame.atoms[:len(other.atoms)]
-//		}
-//		frame.term = other.term
-//		frame.position++
-//
-//	}
+	public void appendFrame(Frame second) {
+    	this.appendAll(second);
+	}
 
 	public void append(Frame other) {
 		Frame frame = this;
@@ -202,6 +207,10 @@ public class Frame {
 		return this.term() == TERM_HEADER;
 	}
 
+	public boolean isEmpty() {
+		return this.Body.length() == 0;
+	}
+
 	public boolean isFramed() {
 		return this.term() == TERM_REDUCED;
 	}
@@ -236,7 +245,7 @@ public class Frame {
 			} else if (do_space && t > 0) {
 				frame.Body = frame.Body.append(' ');
 			}
-			if (!do_noskip && spec[t] == context[t] && (other.term == TERM_REDUCED || spec[t] == ZERO_UUID_ATOM)) {
+			if (!do_noskip && spec[t].equals(context[t]) && (other.term == TERM_REDUCED || spec[t].equals(ZERO_UUID_ATOM))) {
 				skips++;
 				continue;
 			}
@@ -275,23 +284,28 @@ public class Frame {
 				{
 					frame.Body = frame.Body.append(ATOM_INT_SEP);
 					frame.Body = frame.Body.append(a.integer());
+					break;
 				}
 				case ATOM_STRING:
 				{
 					frame.Body = frame.Body.append(ATOM_STRING_SEP);
 					frame.Body = frame.Body.append(other.escString(i-4));
 					frame.Body = frame.Body.append(ATOM_STRING_SEP);
+					break;
 				}
 				case ATOM_FLOAT:
 				{
 					frame.Body = frame.Body.append(ATOM_FLOAT_SEP);
 					frame.appendFloat(a);
+					break;
 				}
 				case ATOM_UUID:
 				{
 					frame.Body = frame.Body.append(ATOM_UUID_SEP);
 					frame.appendUUID(new UUID(a), ZERO_UUID); // TODO defaults
+					break;
 				}
+				default: throw new RuntimeException(a.type() + "");
 			}
 		}
 	}
@@ -364,19 +378,34 @@ public class Frame {
 		return this.atoms[idx+4].escString(this.Body);
 	}
 
-	public static <T> T[] append(T[] a, T[] b) {
-		T[] c = (T[]) new Object[a.length + b.length];
+//	public static <T> T[] append(T[] a, T[] b) {
+//		T[] c = (T[]) new Object[a.length + b.length];
+//		System.arraycopy(a, 0, c, 0, a.length);
+//		System.arraycopy(b, 0, c, a.length, b.length);
+//		return (T[]) c;
+//	}
+
+	public static Atom[] append(Atom[] a, Atom b) {
+//		final List<T> list = new ArrayList<>(Arrays.asList(a));
+//		list.add(b);
+//		return (T[]) list.toArray(new Object[list.size()]);
+		Atom[] c = new Atom[a.length + 1];
 		System.arraycopy(a, 0, c, 0, a.length);
-		System.arraycopy(b, 0, c, a.length, b.length);
-		return (T[]) c;
+		c[a.length] = b;
+		return c;
 	}
 
-	public static <T> T[] append(Object[] a, Object b) {
-		Object[] c = new Object[a.length + 1];
-		System.arraycopy(a, 0, c, 0, a.length);
-		System.arraycopy(new Object[] {b}, 0, c, a.length, 1);
-		return (T[]) c;
-	}
+//	func (frame *Frame) Next() bool {
+//		frame.Parse()
+//		if frame.Parser.state == RON_error {
+//			return false
+//		}
+//		if frame.Parser.streaming {
+//			return frame.IsComplete()
+//		}
+//		return true
+//	}
+
 
 	public boolean next() {
         Frame frame = ron.Parser.parseFrame(this);
@@ -388,6 +417,19 @@ public class Frame {
         }
         return true;
     }
+
+	public Frame rewind() {
+		return Parse.parseFrame(this.Body);
+	}
+
+	public int len() {
+		return this.Body.length();
+	}
+
+	// True if we are past the last op
+	public boolean eof() {
+		return this.Parser.state == RON_error;
+	}
 
 
 //    Cursor Begin () {

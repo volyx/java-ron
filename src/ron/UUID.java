@@ -2,18 +2,20 @@
 package ron;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import static ron.Const.*;
 
 public class UUID implements Comparable<UUID> {
 
-	public static final long UUID_NAME_FLAG = Long.parseUnsignedLong(Long.toString(UUID_NAME)) << 60;
+	public static final long UUID_NAME_FLAG = (long) UUID_NAME << 60;
 
 	public static int INT60LEN = 10;
-	public static long UUID_NAME_UPPER_BITS = Long.parseUnsignedLong(Long.toString(UUID_NAME)) << 60;
-	public static long INT60_FULL = Long.parseUnsignedLong(Long.toString(1)) << 60 - 1;
+	public static long UUID_NAME_UPPER_BITS = (long) UUID_NAME << 60;
+
+	public static long INT60_FULL = (1L << 60) - 1;
 	public static long INT60_ERROR = INT60_FULL;
-	public static long INT60_INFINITY = Long.parseUnsignedLong(Long.toString(63)) << (6 * 9);
+	public static long INT60_INFINITY = 63L << (6 * 9);
 	public static long INT60_FLAGS = Long.parseUnsignedLong(Long.toString(15)) << 60;
 	public static UUID ZERO_UUID = new UUID(0, 0);
 
@@ -23,8 +25,6 @@ public class UUID implements Comparable<UUID> {
 
 	public static UUID ERROR_UUID = newNameUUID(INT60_ERROR, 0);
 
-
-
 	public final long[] uuid = new long[2];
 
 	public UUID(long value, long origin) {
@@ -33,6 +33,7 @@ public class UUID implements Comparable<UUID> {
 	}
 
 	public UUID(UUID a) {
+		Objects.requireNonNull(a);
 		this.uuid[0] = a.uuid[0];
 		this.uuid[1] = a.uuid[1];
 	}
@@ -205,4 +206,11 @@ public class UUID implements Comparable<UUID> {
 	}
 
 
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder("UUID{");
+		sb.append("uuid=").append(Arrays.toString(uuid));
+		sb.append('}');
+		return sb.toString();
+	}
 }

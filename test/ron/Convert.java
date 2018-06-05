@@ -1,10 +1,5 @@
 package ron;
 
-import ron.FrameAppend;
-import ron.Parse;
-import ron.UUID;
-
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,8 +38,8 @@ public class Convert {
 			while (scanner.hasNext()) {
 				final long i = scanner.nextLong();
 				byte[] out = new byte[12];
-				byte[] bi = FrameAppend.formatInt(out, i);
-				System.out.println(new String(bi, StandardCharsets.UTF_8));
+				Slice bi = FrameAppend.formatInt(new Slice(out), i);
+				System.out.println(new String(bi.array(), StandardCharsets.UTF_8));
 			}
 		}
 	}
