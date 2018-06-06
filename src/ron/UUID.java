@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import static ron.Const.*;
+import static ron.FrameAppend.formatZipUUID;
 
 public class UUID implements Comparable<UUID> {
 
@@ -105,7 +106,8 @@ public class UUID implements Comparable<UUID> {
 
 
 	public int variety() {
-		return (int) this.uuid[0] >> 60;
+		// order is important cause cast has higher priority than  >>
+		return (int) (this.uuid[0] >> 60);
 	}
 
 	public byte sign() {
@@ -183,10 +185,15 @@ public class UUID implements Comparable<UUID> {
 		return this.origin() == INT60_ERROR;
 	}
 
+//	func (uuid UUID) ZipString(context UUID) string {
+//		var arr [INT60LEN*2 + 2]byte
+//		return string(FormatZipUUID(arr[:0], uuid, context))
+//	}
+
+
 	public String zipString(UUID context) {
-//		byte[] arr = new byte [INT60LEN * 2 + 2];
-//		return string(formatZipUUID(arr[:0], uuid, context));
-		throw new UnsupportedOperationException();
+		byte[] arr = new byte [INT60LEN * 2 + 2];
+		return new String(formatZipUUID(new Slice(arr, 0), this, context).array());
 	}
 
 	public String stringValue() {

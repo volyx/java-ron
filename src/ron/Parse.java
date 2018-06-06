@@ -9,9 +9,16 @@ public class Parse {
 	public static UUID parseUUIDString(String uuid) {
 		return Parser.parseUUID(ZERO_UUID, uuid.getBytes(StandardCharsets.UTF_8));
 	}
+	public static UUID parseUUIDString(UUID context, String uuid) {
+		return Parser.parseUUID(context, uuid.getBytes(StandardCharsets.UTF_8));
+	}
 
 	public static UUID parseUUID(byte[] data) {
 		return Parser.parseUUID(ZERO_UUID, data);
+	}
+
+	public static UUID parseUUID(UUID context, byte[] data) {
+		return Parser.parseUUID(context, data);
 	}
 
 	public static Frame parseFrame(Slice data) { // TODO swap with OpenFrame

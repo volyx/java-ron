@@ -9,7 +9,8 @@ import static ron.Parser.ORIGIN;
 public class Atom extends UUID {
 //	public static final long INT60_FLAGS = Long.parseUnsignedLong(Long.toString(public static final long INT60_FLAGS = ))  << 60;
 	public static final long INT32_FULL = (1L << 32) - 1;
-	public static final long INT60_FLAGS = 15L << 60;
+//	public static final long INT60_FLAGS = 15L << 60;
+	public static final long INT60_FLAGS = Long.parseUnsignedLong("17293822569102704640");
 	public static final long BIT60 = 1L << 60;
 	public static final long BIT61 = 1L << 61;
 	public static final int INT16_FULL = (1 << 16) - 1;
@@ -52,9 +53,9 @@ public class Atom extends UUID {
 //		a[half] |= uint64(value) << (idx << 2)
 //	}
 
-	public void reset4(int half, int idx, long value) {
-//		uuid[half] &^= 15 << (idx << 2);
-		uuid[1] = value << 60;
+	public void reset4(int half, long idx, long value) {
+		uuid[half] &= uuid[half] ^ (15L << (idx << 2));
+//		uuid[half] = value << 60;
 		uuid[half] |= value << (idx << 2);
 	}
 
