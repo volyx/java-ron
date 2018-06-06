@@ -128,9 +128,16 @@ public class FrameAppend {
 		if (uuid.scheme() == context.scheme() && at > start + 1) {
 			if (buf.length() > at && !isBase64(buf.get(at))) {
 //				copy(buf[at-1:], buf[at:])
+//				buf = buf[:len(buf)-1]
 				final Slice dst = new Slice(Arrays.copyOfRange(buf.array(), at - 1, buf.length()));
 				final Slice src = new Slice(Arrays.copyOfRange(buf.array(), at, buf.length()));
-				buf = dst.copy(src);
+				// we need get minimum slice like in Go
+				if (dst.length() > src.length()) {
+					buf = buf.copy(src,  at - 1);
+				} else {
+					buf = buf.copy(dst,  at - 1);
+				}
+				buf = new Slice(Arrays.copyOfRange(buf.array(), 0 , buf.array().length - 1));
 			} else if (buf.length() == at && !isBase64(buf.get(start))) {
 				buf = new Slice(Arrays.copyOfRange(buf.array(), 0, buf.length() - 1));
 			}

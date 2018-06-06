@@ -4,7 +4,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 public class ParseTest {
 
@@ -34,24 +33,22 @@ public class ParseTest {
 	@Test
 	public void TestParseFormatUUID() {
 		String[][] tests = new String[][]{
-//			{"0", "1", "1"}, // 0
-//			{"1-x", ")1", "1000000001-x"},
-//			{"test-1", "-", "test-1"},
-//			{"hello-111", "[world", "helloworld-111"},
-//			{"helloworld-111", "[", "hello-111"},
-//			{"100001-orig", "[", "1-orig"}, // 5
-//			{"1+orig", "(2-", "10002-orig"},
+			{"0", "1", "1"}, // 0
+			{"1-x", ")1", "1000000001-x"},
+			{"test-1", "-", "test-1"},
+			{"hello-111", "[world", "helloworld-111"},
+			{"helloworld-111", "[", "hello-111"},
+			{"100001-orig", "[", "1-orig"}, // 5
+			{"1+orig", "(2-", "10002-orig"},
 			{"time+orig", "(1(2", "time1+orig2"},
-			// //  TODO		{"name$user", "$scoped", "scoped$user"},
-//			{"any-thing", "hash%here", "hash%here"},
-//			{"[1s9L3-[Wj8oO", "-(2Biejq", "[1s9L3-(2Biejq"}, // 9
-//			{"0123456789-abcdefghij", ")~)~", "012345678~-abcdefghi~"},
-//			{"(2-[1jHH~", "-[00yAl", "(2-}yAl"},
-//			{"0123G-abcdb", "(4566(efF", "01234566-abcdefF"},
+			// TODO		{"name$user", "$scoped", "scoped$user"},
+			{"any-thing", "hash%here", "hash%here"},
+			{"[1s9L3-[Wj8oO", "-(2Biejq", "[1s9L3-(2Biejq"}, // 9
+			{"0123456789-abcdefghij", ")~)~", "012345678~-abcdefghi~"},
+			{"(2-[1jHH~", "-[00yAl", "(2-}yAl"},
+			{"0123G-abcdb", "(4566(efF", "01234566-abcdefF"},
 		};
 		for (int i = 0; i < tests.length; i++) {
-
-			System.out.println(Arrays.asList(tests[i]));
 
 			String[] tri = tests[i];
 			UUID context = Parse.parseUUIDString(tri[0]);

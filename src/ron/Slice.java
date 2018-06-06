@@ -134,8 +134,9 @@ public class Slice {
 	}
 
 
-	public Slice copy(Slice src) {
-		return append(src.array());
+	public Slice copy(Slice src, int offset) {
+		System.arraycopy(src.buf, 0, this.buf, offset, src.array().length);
+		return this;
 	}
 
 
