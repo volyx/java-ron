@@ -214,4 +214,34 @@ public class ParseTest {
 		}
 	}
 
+	@Test
+	public void TestFrame_Next() {
+		String[] ops = new String[] {"*a!", "*b=1", "*c=1!", "*d,", "*e,"};
+		// "*a!*b=1*c=1!*d,*e,"
+		String frameStr = String.join("", ops) + ".";
+		System.out.println(frameStr);
+		Frame frame = Parse.parseFrameString(frameStr);
+		String names = "";
+		int i = 0, l = 0;
+		for (;!frame.eof();) {
+			l += ops[i].length();
+			if (i == (ops.length - 1)) {
+				l++; //? ragel
+			}
+			if (frame.offset() != l) {
+				Assert.fail(String.format("bad off: %d not %d '%s'", frame.offset(), l, frameStr));
+			} else {
+//				System.out.printf("OK %d %s", i, frame.type().stringValue());
+			}
+			i++;
+			names += frame.type().stringValue();
+			Parser.parseFrame(frame);
+		}
+		if (i != ops.length || !names.equals("abcde")) {
+			Assert.fail(String.format("bad end: %d not %d, at %d, '%s' should be 'abcde'", i, ops.length, frame.offset(), names));
+
+		}
+	}
+
+
 }

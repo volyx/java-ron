@@ -853,6 +853,7 @@ case 5:
                      break;
                  case RON_FULL_STOP:
                  case RON_start:
+                 	break;
                  default:
                      if (ps.state>=RON_first_final) { // one of end states
                           if (!ps.streaming && p>=eof) {

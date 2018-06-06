@@ -487,6 +487,10 @@ public class Frame {
 		return this.Parser.state == RON_error;
 	}
 
+	public int offset() {
+		return this.Parser.pos;
+	}
+
 
 //    Cursor Begin () {
 //        return null;
