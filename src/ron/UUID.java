@@ -147,7 +147,7 @@ public class UUID implements Comparable<UUID> {
 		return newRonUUID(scheme, 0, value, origin);
 	}
 
-	public UUID newEventUUID(long time, long origin) {
+	public static UUID newEventUUID(long time, long origin) {
 		return newUUID(UUID_EVENT, time, origin);
 	}
 

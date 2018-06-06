@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static java.util.Arrays.copyOfRange;
 import static ron.Atom.BIT60;
@@ -55,6 +56,11 @@ public class Frame {
 //            atoms[i] = new Atom(0L, 0L);
 //        }
         atoms = new Atom[0];
+    }
+    public Frame(Atom[] atoms, int term) {
+		super();
+        this.atoms = atoms;
+        this.term = term;
     }
 
 //	func OpenFrame(data []byte) Frame {
@@ -126,6 +132,10 @@ public class Frame {
         right.appendBytes(frame.rest());
         return Pair.create(left, right);
     }
+
+	public static Atom[] newSpec(UUID t, UUID o, UUID e, UUID l) {
+		return new Atom[] {new Atom(t), new Atom(o), new Atom(e), new Atom(l)};
+	}
 
 	public void appendAll(Frame i) {
 		if (i.isEmpty()) {
@@ -279,6 +289,7 @@ public class Frame {
 		Frame frame = this;
 		for (int i = 4; i < other.atoms.length; i++) {
 			Atom a = other.atoms[i];
+			Objects.requireNonNull(a);
 			switch (a.type()) {
 				case ATOM_INT:
 				{
@@ -384,6 +395,51 @@ public class Frame {
 //		System.arraycopy(b, 0, c, a.length, b.length);
 //		return (T[]) c;
 //	}
+
+	public void appendSpecValuesTerm(Atom[] spec, Atom[] values, int term) {
+		Atom[] atoms = new Atom[values.length + 4 + 1];
+		for (int i = 0; i < spec.length; i++) {
+			atoms[i] = spec[i];
+		}
+		int j = 0;
+		for (int i = spec.length; i < spec.length + values.length; i++) {
+			atoms[i] = spec[j++];
+		}
+//		atoms = append(atoms, spec...)
+//		atoms = append(atoms, values...)
+		Frame tmp = new Frame(atoms, term);
+		this.append(tmp);
+	}
+
+	public void appendEmpty(Atom[] spec, int term) {
+//		Atom[] atoms = new Atom[6];
+		Atom[] atoms = new Atom[4];
+//		atoms = append(atoms, spec[0:4]...)
+		System.arraycopy(spec, 0, atoms, 0, 4);
+		Frame tmp = new Frame(atoms, term);
+		this.append(tmp);
+	}
+
+//	func (frame *Frame) AppendReducedOpInt(spec Spec, value int64) {
+//		frame.AppendSpecValT(spec, NewIntegerAtom(value), TERM_REDUCED)
+//	}
+//
+//	func (frame *Frame) AppendReducedOpUUID(spec Spec, value UUID) {
+//		frame.AppendSpecValT(spec, NewUUIDAtom(value), TERM_REDUCED)
+//	}
+//
+//	func (frame *Frame) AppendStateHeader(spec Spec) {
+//		frame.AppendEmpty(spec, TERM_HEADER)
+//	}
+
+	public void appendStateHeader(Atom[] spec) {
+		appendEmpty(spec, TERM_HEADER);
+	}
+
+	public void appendStateHeaderValues(UUID rdt, UUID obj, UUID ev, UUID ref, Atom[] values) {
+		Atom[] spec = newSpec(rdt, obj, ev, ref);
+		this.appendSpecValuesTerm(spec, values, TERM_HEADER);
+	}
 
 	public static Atom[] append(Atom[] a, Atom b) {
 //		final List<T> list = new ArrayList<>(Arrays.asList(a));

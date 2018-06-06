@@ -4,11 +4,14 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
+import java.util.Random;
 
+import static ron.FrameAppend.FORMAT_OP_LINES;
 import static ron.UUID.ERROR_UUID;
+import static ron.UUID.INT60LEN;
 
 public class ParseTest {
+	private static final Random rand = new Random();
 
 	@Test
 	public void TestParseUUID() {
@@ -133,6 +136,81 @@ public class ParseTest {
 			if (!next.equals(unzipped)) {
 				Assert.fail(String.format("uuid parse fail at %d: '%s' should be '%s' context %s len %d", i, next.stringValue(), test32[i][1], defstr, zipped.length()));
 			}
+		}
+	}
+
+
+	public static long random_close_int(long base, long prefix) {
+		if (prefix == 10) {
+			return base;
+		}
+		if (prefix == 11) {
+			return 0;
+		}
+		long shift = (10 - prefix) * 6;
+		base >>= shift;
+		base <<= shift;
+		long rnd = rand.nextLong() & 63;
+		base |= (rnd << (shift - 6));
+		return base;
+	}
+
+	@Test
+	public void TestParseFrame() {
+// in java 9
+//		ProcessHandle.current().pid();
+//		pid := os.Getpid()
+		long pid = rand.nextLong();
+		System.out.printf("random seed %d", pid);
+
+		rand.setSeed(pid);
+		String defstr = "0123456789-abcdefghi";
+		UUID def = Parse.parseUUIDString(defstr);
+		int at;
+		// 64 random uuids - 8 brackets
+		int dim = INT60LEN + 2;
+		UUID[] uuids = new UUID[dim * dim];
+
+		for (int bv = 0; bv < dim; bv++) {
+			for (int bo = 0; bo < dim; bo++) {
+				long v = random_close_int(def.value(), (long) bv);
+				long o = random_close_int(def.origin(), (long) bo);
+				uuids[bv*dim+bo] = UUID.newEventUUID(v, o);
+			}
+		}
+		// shuffle to 16 ops
+		for (int i = 0; i < 1000; i++) {
+			int f = Math.abs(rand.nextInt()) % uuids.length;
+			int t = Math.abs(rand.nextInt()) % uuids.length;
+			uuids[f] = uuids[t];
+			uuids[t] = uuids[f];
+		}
+		// pack into a frame
+		Frame frame = Frame.makeFrame(dim*dim*22 + dim*100);
+		frame.Serializer.Format |= FORMAT_OP_LINES;
+		int ops = 30;
+		for (int j = 0; j < ops; j++) {
+			at = j << 2;
+			frame.appendStateHeader(Frame.newSpec(uuids[at], uuids[at+1], uuids[at+2], uuids[at+3]));
+		}
+		System.out.println(frame.string());
+//		// recover, compare
+		Frame iter = frame.rewind();
+		for (int k = 0; k < ops; k++) {
+			if (iter.eof()) {
+				Assert.fail(String.format("Premature end: %d not %d, failed at %d\n", k, ops, iter.Parser.pos));
+			}
+			at = k << 2;
+			for (int u = 0; u < 4; u++) {
+				UUID uuid  = iter.UUID(u);
+				if (!uuid.equals(uuids[at+u])) {
+					Assert.fail(String.format("uuid %d decoding failed in op#%d, '%s' should be '%s'", u, k, iter.UUID(u).stringValue(), uuids[at+u].stringValue()));
+				}
+			}
+			iter.next();
+		}
+		if (!iter.eof()) {
+			Assert.fail("No end");
 		}
 	}
 
