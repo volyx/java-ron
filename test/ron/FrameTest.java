@@ -1,5 +1,6 @@
 package ron;
 
+import org.junit.Test;
 import ron.Frame;
 import ron.Parse;
 
@@ -39,7 +40,8 @@ public class FrameTest {
 //		}
 	}
 
-	private static void TestFrame_Split() {
+	@Test
+	public void TestFrame_Split() {
 		Frame frame = Parse.parseFrameString("*lww#id1!:val=1*#id2:0!:val=2");
 		System.out.println(frame.Parser);
 

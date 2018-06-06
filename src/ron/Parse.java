@@ -18,9 +18,6 @@ public class Parse {
 		return Frame.openFrame(data);
 	}
 
-//	func ParseFrameString(frame string) Frame {
-//		return ParseFrame([]byte(frame))
-//	}
 	public static Frame parseFrameString(String frame) {
 		return parseFrame(new Slice(frame.getBytes(StandardCharsets.UTF_8)));
 	}
