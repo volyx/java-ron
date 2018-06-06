@@ -5,6 +5,7 @@ package ron;
 
 import java.util.Arrays;
 import static ron.Const.*;
+import static ron.UUID.ERROR_UUID;
 import static ron.UUID.UUID_NAME_FLAG;
 import static ron.UUID.ZERO_UUID;
 
@@ -1227,7 +1228,7 @@ case 5:
 
         if (cs < UUID_first_final || dgt > 10) {
             throw new RuntimeException(String.format("parse error at pos %d", p));
-            // return ERROR_UUID, errors.New(fmt.Sprintf("parse error at pos %d", p))
+//             return ERROR_UUID, errors.New(fmt.Sprintf("parse error at pos %d", p))
         } else {
             return new UUID(atoms[0]);
         }
