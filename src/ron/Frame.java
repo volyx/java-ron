@@ -88,6 +88,14 @@ public class Frame {
 		return frame;
 	}
 
+	public static Frame makeStream(int prealloc_bytes) {
+		Frame ret = new Frame();
+		ret.Body = new Slice(new byte[prealloc_bytes], 0);
+		ret.Parser.streaming = true;
+		//ret.Parser.state = RON_start
+		return ret;
+	}
+
 //	func MakeFrame(prealloc_bytes int) (ret Frame) {
 //		ret.Body = make([]byte, 0, prealloc_bytes)
 //		return

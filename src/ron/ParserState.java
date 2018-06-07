@@ -15,6 +15,10 @@ public class ParserState {
     // uint8
     public int omitted;
 
+    public int state() {
+        return this.state;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ParserState{");

@@ -4,9 +4,12 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Random;
 
 import static ron.FrameAppend.FORMAT_OP_LINES;
+import static ron.Parser.RON_FULL_STOP;
+import static ron.Parser.RON_start;
 import static ron.UUID.ERROR_UUID;
 import static ron.UUID.INT60LEN;
 
@@ -243,5 +246,33 @@ public class ParseTest {
 		}
 	}
 
+
+	@Test
+	public void TestFrame_EOF2() {
+		byte[] multi = "*a#A:1!:2=2:3=3.*b#B:1?:2=2.".getBytes(StandardCharsets.UTF_8);
+		int[] states = new int[] {RON_start, RON_start, RON_FULL_STOP, RON_start, RON_FULL_STOP};
+		int o = 0;
+		Frame frame = Frame.makeStream(128);
+		for (int i = 0; i < multi.length; i++) {
+			frame.appendBytes(Arrays.copyOfRange(multi, i,  i+1));
+			if (frame.next()) {
+				if (states[o] != frame.Parser.state) {
+					Assert.fail(String.format("state %d at pos %d op %d, expected %d", frame.Parser.state, frame.Parser.pos, o, states[o]));
+//					break
+				} else {
+					//t.Logf("OK state %d at pos %d op %d", frame.Parser.state, frame.Parser.pos, o)
+				}
+				if (frame.Parser.state == RON_FULL_STOP) {
+					frame = Frame.makeStream(1024);
+				}
+				o++;
+
+			}
+			System.out.println(i + " " + frame.Parser.state());
+		}
+		if (o != states.length) {
+			Assert.fail(String.format("%d ops, needed %d", o, states.length));
+		}
+	}
 
 }
