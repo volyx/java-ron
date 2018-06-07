@@ -68,8 +68,12 @@ public class Atom extends UUID {
 		uuid[half] |= 1 << idx;
 	}
 
-	public void inc16(int origin, int i) {
-		throw new UnsupportedOperationException();
+	public void inc16(int half, long idx) {
+		long shift = idx << 4;
+		long i = uuid[half] >> shift;
+		i++;
+		uuid[half] &= uuid[half] ^ (INT16_FULL << shift);
+		uuid[half] |= (i & INT16_FULL) << shift;
 	}
 
 	public void arab16(int origin, int i) {

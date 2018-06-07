@@ -317,4 +317,42 @@ public class ParseTest {
 		}
 	}
 
+
+	// A RON-text file must start with '*'
+	@Test
+	public void TestXParseOpWhitespace() {
+		String str = "*lww \t #test ;\n#next?";
+		Frame frame = Parse.parseFrameString(str);
+		if (str.charAt(frame.offset() - 1) != '\n') {
+			Assert.fail();
+		}
+		frame.next();
+		if (frame.offset() != str.length()) {
+			Assert.fail();
+		}
+	}
+
+	@Test
+	public void TestXParseMalformedOp() {
+		String[] tests = new String[] {
+			"novalue",
+					"# broken - uuid?",
+					"#too-many@values!!??=5=6^7.0^8.0'extra'",
+					"#invalid-float ^31.41.5",
+					"",
+					"'unescaped ' quote'",
+					">badreference",
+					"#no_uuid-sep@$$",
+					"#trailing garbage",
+					"#reordered .uuids =1",
+					"#repeat #uuids =1",
+		};
+		for (int i = 0; i < tests.length; i++) {
+			String str = tests[i];
+			Frame frame = Parse.parseFrameString(str);
+			if (!frame.eof() && frame.offset() >= str.length()) {
+				Assert.fail(String.format("parsed %d but invalid: '%s' (%d)", i, str, frame.offset()));
+			}
+		}
+	}
 }
