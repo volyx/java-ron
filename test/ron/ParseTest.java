@@ -275,4 +275,46 @@ public class ParseTest {
 		}
 	}
 
+	@Test
+	public void TestFrame_EOF() {
+		String[] streams = new String[] {
+			"#id . #one! #two! #three!. ",
+					"...",
+					"#first#incomplete",
+		};
+		int[][] states = new int[][]{
+			{RON_FULL_STOP, RON_start, RON_start, RON_FULL_STOP},
+			{RON_FULL_STOP, RON_FULL_STOP, RON_FULL_STOP},
+			{RON_start},
+		};
+		for (int k = 0; k < streams.length; k++) {
+			String stream = streams[k];
+			Frame frame = Frame.parseStream(new byte[]{});
+			// feed by 1 char
+			// EOF -> Rest()
+			int s = 0;
+			for (int i = 0; i < stream.length(); i++) {
+				frame.appendBytes(Arrays.copyOfRange(stream.getBytes(StandardCharsets.UTF_8), i, i+1));
+				frame.next();
+				//t.Log(k, i, stream[i:i+1], frame.pos, frame.Parser.State(), frame.IsComplete())
+				if (Parser.IsComplete(frame)) {
+					if (s > states[k].length) {
+						Assert.fail(String.format("stream %d off %d got %d need nothing", k, i, frame.Parser.state()));
+					}
+					if (frame.Parser.state() != states[k][s]) {
+						Assert.fail(String.format("stream %d off %d got %d need %d", k, i, frame.Parser.state(), states[k][s]));
+
+					}
+					s++;
+					if (frame.Parser.state() == RON_FULL_STOP) {
+						frame = Frame.parseStream(frame.rest());
+					}
+				}
+			}
+			if (s != states[k].length) {
+				Assert.fail(String.format("need %d complete states, got %d", states[k].length, s));
+			}
+		}
+	}
+
 }

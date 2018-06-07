@@ -101,13 +101,13 @@ public class Frame {
 //		return
 //	}
 
-//	func ParseStream(buf []byte) Frame {
-//		ret := MakeFrame(1000 + len(buf))
-//		ret.AppendBytes(buf)
-//		ret.Parser.streaming = true
-//		ret.Next()
-//		return ret
-//	}
+	public static Frame parseStream(byte[] buf)  {
+		Frame ret = Frame.makeFrame(1000 + buf.length);
+		ret.appendBytes(buf);
+		ret.Parser.streaming = true;
+		ret.next();
+		return ret;
+	}
 
 	public UUID UUID(int idx) {
 		return new UUID(this.atoms[idx]);
