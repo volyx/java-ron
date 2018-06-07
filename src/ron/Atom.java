@@ -5,6 +5,7 @@ import java.util.Arrays;
 import static ron.Frame.DIGIT_OFFSETS;
 import static ron.Frame.PREFIX_MASKS;
 import static ron.Parser.ORIGIN;
+import static ron.Parser.VALUE;
 
 public class Atom extends UUID {
 //	public static final long INT60_FLAGS = Long.parseUnsignedLong(Long.toString(public static final long INT60_FLAGS = ))  << 60;
@@ -26,6 +27,10 @@ public class Atom extends UUID {
 
 	public static Atom NewAtom() {
 		return new Atom(0L, 0L);
+	}
+
+	public UUID UUID() {
+		return new UUID(this);
 	}
 
 	public void set6(int half, int dgt, long value) {
@@ -105,6 +110,16 @@ public class Atom extends UUID {
 	public long  Type() {
 		return uuid[1] >> 62;
 	}
+
+	public float Float() {
+		int pow = this.pow();
+		float ret = (float) (uuid[VALUE]) * (float) Math.pow(pow, 10);
+		if ((uuid[ORIGIN] & BIT60) != 0) {
+			ret = -ret;
+		}
+		return ret;
+	}
+
 
 	public int pow() {
 		Atom a = this;

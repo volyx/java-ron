@@ -109,8 +109,18 @@ public class Frame {
 		return ret;
 	}
 
+	public String opString() {
+		Frame cur = makeFrame(128);
+		cur.append(this);
+		return new String(cur.Body.array(), StandardCharsets.UTF_8);
+	}
+
 	public UUID UUID(int idx) {
 		return new UUID(this.atoms[idx]);
+	}
+
+	public Atom Atom(int i) {
+		return this.atoms[i+4];
 	}
 
 
@@ -122,6 +132,11 @@ public class Frame {
 	public static Frame newBufferFrame(Slice data) {
         return ron.Parse.parseFrame(data);
     }
+
+	public static Frame newFrame() {
+		return newBufferFrame(new Slice(new byte[1024], 0));
+	}
+
 
 	public byte[] rest()  {
     	return Arrays.copyOfRange(this.Body.array(), this.Parser.pos, this.Body.length());
@@ -221,8 +236,24 @@ public class Frame {
     	System.arraycopy(src, 0, dest, 0, src.length);
 	}
 
+	public UUID object() {
+		return this.UUID(SPEC_OBJECT);
+	}
+	public UUID event() {
+		return this.UUID(SPEC_EVENT);
+	}
+
+
+	public UUID ref() {
+		return this.UUID(SPEC_REF);
+	}
+
 	public boolean isHeader() {
 		return this.term() == TERM_HEADER;
+	}
+
+	public boolean isQuery() {
+		return this.term() == TERM_QUERY;
 	}
 
 	public boolean isEmpty() {
@@ -498,6 +529,60 @@ public class Frame {
 	public int offset() {
 		return this.Parser.pos;
 	}
+
+	// IsEqual checks for single-op equality
+	public boolean compare(Frame other) {
+    	int at = 0; boolean eq = false;
+		if (this.eof() || other.eof()) {
+			return this.eof() && other.eof();// 0
+		}
+		if (this.term() != other.term()) {
+			return false; //, -1
+		}
+		for (int i = 0; i < 4; i++) { // FIXME strings are difficult
+			if (!this.atoms[i].equals(other.atoms[i])) {
+				return false; //, i
+			}
+		}
+		if (this.count() != other.count()) {
+			return false;//, -2
+		}
+		return true;//, 0
+	}
+
+	// (eq bool, op, at int)
+	public boolean compareAll(Frame other)  {
+    	int op = 0; int at = 0;
+		boolean eq = false;
+		for (;!eof() && !other.eof();) {
+			eq = this.compare(other);
+			if (!eq) {
+				return eq;
+			}
+			op++;
+			this.next();
+			other.next();
+		}
+		if (!this.eof() || !other.eof()) {
+			eq = false;
+			return eq;
+		}
+		return eq;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Frame other = (Frame) o;
+		return compareAll(other);
+
+//		func (frame Frame) Equal(other Frame) bool {
+//			eq, _, _ := frame.CompareAll(other)
+//			return eq
+//		}
+	}
+
 
 
 //    Cursor Begin () {

@@ -7,8 +7,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Random;
 
+import static ron.Const.ATOM_FLOAT;
+import static ron.Const.ATOM_PUNCT;
+import static ron.Const.TERM_REDUCED;
 import static ron.FrameAppend.FORMAT_OP_LINES;
 import static ron.Parser.RON_FULL_STOP;
+import static ron.Parser.RON_error;
 import static ron.Parser.RON_start;
 import static ron.UUID.ERROR_UUID;
 import static ron.UUID.INT60LEN;
@@ -355,4 +359,205 @@ public class ParseTest {
 			}
 		}
 	}
+
+	@Test
+	public void TestParseComment() {
+		String[][] tests = new String[][]{
+			{
+				"*lww#object@time!:field'value' *~'comment'! *rga!.",
+						"*rga!",
+			},
+			{
+				"*lww#object@time! :field'value', *~'comment', *lww:another'value'.",
+						"*lww #object @time :another'value',",
+			},
+		};
+		for (int k = 0; k < tests.length; k++) {
+			String[] test = tests[k];
+			Frame frame = Parse.parseFrameString(test[0]);
+			Frame correct = Parse.parseFrameString(test[1]);
+			for (;frame.Parser.state() != RON_FULL_STOP;){
+				frame.next();
+			}
+			boolean eq = frame.equals(correct);
+			if (!eq) {
+				Assert.fail(String.format("%d need \n'%s'\n got \n'%s'\n", k, correct.opString(), frame.opString()));
+			}
+		}
+
+	}
+
+	@Test
+	public void TestParseTermDuplet() {
+		String frameStr = "*lww#object@time+orig?! :keyA 'А' :keyB 'Б'";
+		Frame frame = Parse.parseFrameString(frameStr);
+		if (!frame.isQuery()) {
+			Assert.fail("no query parsed");
+		}
+		UUID obj = frame.object();
+		frame.next();
+		if (frame.eof() || !frame.isHeader() || !frame.object().equals(obj)) {
+			Assert.fail("state header not parsed");
+		}
+		frame.next();
+		if (frame.eof() || frame.term() != TERM_REDUCED || !frame.object().equals(obj)) {
+			Assert.fail("inner op not parsed");
+		}
+	}
+
+	@Test
+	public void TestOp_ParseAtoms() {
+		String[][] tests = new String[][]{
+			{"*a>0>1>2>3", ">>>>"},
+			{"*a>0>0,#next>0>0", ">>"},
+			{"*a,", ""},
+			{"*a=1^2.0", "=^"},
+			{"*a'str''quoted \\'mid\\' str'", "''"},
+		};
+		for (int i = 0; i < tests.length; i++) {
+			String str = tests[i][0];
+			Frame frame = Parse.parseFrameString(str);
+			if (frame.eof()) {
+				Assert.fail(String.format("not parsed %d: '%s' (%d)", i, str, frame.offset()));
+			}
+			String types = "";
+			for (int a = 0; a < frame.count(); a++) {
+				types += new String(new byte[] {ATOM_PUNCT[frame.Atom(a).type()]});
+			}
+			if (!types.equals(tests[i][1])) {
+				Assert.fail(String.format("misparsed %d: '%s' (%s)", i, types, tests[i][1]));
+			}
+		}
+	}
+
+	@Test
+	public void TestOp_ParseFloat() {
+		String[][] frames = new String[][]{
+			{"*lww#id^3.141592", "*lww#id^3.141592"},
+			{"*lww#id^-0.25", "*lww#id^-0.25"},
+			{"*lww#id^0.000001", "*lww#id^1.0e-6"},
+			{"*lww#id^-0.00000e+02", "*lww#id^0.0"},
+			{"*lww#id^-1.00000e+09", "*lww#id^-1000000000.0"},
+			{"*lww#id^1000000000.0e-1", "*lww#id^100000000.0"},
+			{"*lww#id^12345.6789e+16", "*lww#id^1.23456789e+20"},
+		};
+		float[] vals = new float[]{
+					(float) 3.141592,
+					(float) -0.25,
+					(float) 0.000001,
+					0,
+					(float) -1e+9,
+					(float) 1e+8,
+					(float) 1.23456789e+20,
+		};
+		for (int i = 0; i < frames.length; i++) {
+			Frame frame = Parse.parseFrameString(frames[i][0]);
+			if (frame.count() != 1 || frame.Atom(0).Type() != ATOM_FLOAT) {
+				Assert.fail("misparsed a float " + i);
+			}
+			Atom atom = frame.Atom(0);
+			float val = atom.Float();
+			if (Math.abs(val-vals[i]) > 0.001) {
+				Assert.fail(String.format("%d float value unparsed %e!=%e", i, val, vals[i]));
+			}
+			Frame back = Frame.newFrame();
+			back.append(frame);
+			if (!back.string().equals(frames[i][1])) {
+				Assert.fail(String.format("float serialize fail (got/want):\n%s\n%s\n", back.string(), frames[i][1]));
+			}
+		}
+	}
+
+	@Test
+	public void TestParse_SpecOnly() {
+		String str = "#test:)1#test:)2#test:)3";
+		Frame frame = Parse.parseFrameString(str);
+		long c = 0;
+		for (;!frame.eof();) {
+			c++;
+			if (frame.ref().value() != c) {
+				Assert.fail();
+			}
+			frame.next();
+		}
+		if (c != 3) {
+			Assert.fail();
+		}
+	}
+
+	@Test
+	public void TestParse_Errors() {
+		String[] frames = new String[]{
+			"#test>linkмусор",
+					"#string'unfinishe",
+					"#id<",
+					"#bad@term=?",
+					"#no-term?-",
+					"#notfloat^a",
+					"#notesc'\\'",
+					"*type=1NT",
+					"*ty&",
+		};
+		for (int k = 0; k < frames.length; k++) {
+			String f = frames[k];
+			byte[] buf = f.getBytes(StandardCharsets.UTF_8);
+			Frame frame = Parse.parseFrame(new Slice(buf));
+			if (frame.Parser.state() != RON_error) {
+				Assert.fail(String.format("mistakenly parsed %d [ %s ] %d\n", k, f, frame.offset()));
+			}
+		}
+	}
+
+	@Test
+	public void TestFrame_ParseStream() {
+		String str = "*op1=123*op2!*op3!.";
+		Frame frame = Frame.makeStream(1024);
+		int count = 0;
+		for (int i = 0; i < str.length(); i++) {
+			frame.Body = frame.Body.append(str.charAt(i));
+			Parser.parseFrame(frame);
+			//fmt.Println(frame.Parser.state, "AT", frame.Offset(), string(frame.Body[:frame.Offset()]))
+			if (Parser.IsComplete(frame)) {
+				//fmt.Println("TADAAM", frame.OpString(), frame.Count(), "\n")
+				count++;
+			}
+		}
+		if (count != 3) {
+			Assert.fail(String.format("count %d!=3", count));
+		}
+	}
+
+	@Test
+	public void TestAtom_UUID() {
+		String str = "*lww#1TUAQ+gritzko@`:bar=1 #(R@`:foo > (Q";
+		Frame frame = Parse.parseFrameString(str);
+		UUID uuid1 = frame.object();
+		UUID uuid2 = frame.event();
+		if (!uuid1.equals(uuid2)) {
+			Assert.fail();
+		}
+		frame.next();
+		UUID uuid3 = frame.Atom(0).UUID();
+		if (!uuid1.equals(uuid3)) {
+			Assert.fail();
+		}
+	}
+
+	@Test
+	public void TestParserState_Omitted() {
+		Frame frame = Parse.parseFrameString("*type#id!@ev@ev:");
+		if (frame.Parser.omitted != (4|8)) {
+			Assert.fail(String.format("omitted is %d for %s", frame.Parser.omitted, frame.opString()));
+		}
+		frame.next();
+		if (frame.Parser.omitted != (1|2|8)) {
+			Assert.fail();
+		}
+		frame.next();
+		if (frame.Parser.omitted != (1|2)) {
+			Assert.fail();
+		}
+	}
+
+
 }
