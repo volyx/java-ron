@@ -1,8 +1,15 @@
 package ron;
 
 
+import java.util.Arrays;
+import java.util.Objects;
+
 public class Batch {
 	public Frame[] frames = new Frame[0];
+	public Batch(){}
+	public Batch(Frame frame) {
+		this.frames = new Frame[] {frame};
+	}
 
 	public Batch append(Frame frame) {
 		Frame[] frames = new Frame[this.frames.length + 1];
@@ -35,5 +42,51 @@ public class Batch {
 			ret.appendFrame(f);
 		}
 		return ret.rewind();
+	}
+
+	public String string() {
+		String ret = "";
+		for (Frame frame : frames) {
+			ret += frame.string() + "\n";
+		}
+		return ret;
+	}
+
+	// Equal checks two batches for op-by-op equality (irrespectively of frame borders)
+	public boolean compare(Batch other) {
+		boolean eq = false; int op = 0, at;
+		int bi = 0, oi = 0;
+		Frame bf = new Frame();
+		Frame of = new Frame();
+		for (;(!bf.eof() || bi < this.frames.length) && (!of.eof() || oi < other.frames.length);) {
+			for (;bf.eof() && bi < frames.length;) {
+				bf = this.frames[bi];
+				bi++;
+			}
+			for (;of.eof() && oi < other.frames.length;) {
+				of = other.frames[oi];
+				oi++;
+			}
+			eq = bf.compare(of);
+			if (!eq) {
+				return eq;
+			}
+			op++;
+			bf.next();
+			of.next();
+		}
+		if (bi != this.frames.length || oi != other.frames.length || !bf.eof() || !of.eof()) {
+			eq = false;
+		}
+		return eq;
+	}
+
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Batch other = (Batch) o;
+		return this.compare(other);
 	}
 }

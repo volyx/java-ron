@@ -14,7 +14,7 @@ public class Atom extends UUID {
 	public static final long INT60_FLAGS = Long.parseUnsignedLong("17293822569102704640");
 	public static final long BIT60 = 1L << 60;
 	public static final long BIT61 = 1L << 61;
-	public static final int INT16_FULL = (1 << 16) - 1;
+	public static final long INT16_FULL = (1L << 16) - 1;
 	public static UUID ZERO_UUID_ATOM = new Atom(ZERO_UUID);
 
 	public Atom(long value, long origin) {
@@ -46,7 +46,7 @@ public class Atom extends UUID {
 	}
 
 	public long get6(int half, int dgt) {
-		return (uuid[half] >> DIGIT_OFFSETS[dgt]) & 63L;
+		return (uuid[half] >>> DIGIT_OFFSETS[dgt]) & 63L;
 	}
 
 	public void init64(int half, long flags) {
@@ -75,7 +75,7 @@ public class Atom extends UUID {
 
 	public void inc16(int half, long idx) {
 		long shift = idx << 4;
-		long i = uuid[half] >> shift;
+		long i = uuid[half] >>> shift;
 		i++;
 		uuid[half] &= uuid[half] ^ (INT16_FULL << shift);
 		uuid[half] |= (i & INT16_FULL) << shift;
@@ -93,8 +93,10 @@ public class Atom extends UUID {
 		this.uuid[1] = origin;
 	}
 
+	// go 13835058055282229248 >>> 62 = 1
+	// java -4611686018427322368L >>> 62 = -1
 	public int type() {
-		return (int) uuid[1] >> 62;
+		return (int) (uuid[1] >>> 62);
 	}
 
 	public long integer() {
@@ -107,13 +109,13 @@ public class Atom extends UUID {
 		}
 	}
 
-	public long  Type() {
-		return uuid[1] >> 62;
+	public int Type() {
+		return type();
 	}
 
-	public float Float() {
+	public double Float() {
 		int pow = this.pow();
-		float ret = (float) (uuid[VALUE]) * (float) Math.pow(pow, 10);
+		double ret = (double) (uuid[VALUE]) * Math.pow(10, pow);
 		if ((uuid[ORIGIN] & BIT60) != 0) {
 			ret = -ret;
 		}
@@ -127,12 +129,12 @@ public class Atom extends UUID {
 		if ((a.uuid[ORIGIN] & BIT61) != 0) {
 			pow = -pow;
 		}
-		pow -= (a.uuid[ORIGIN] >> 16) & INT16_FULL;
+		pow -= (int) ((a.uuid[ORIGIN] >>> 16) & INT16_FULL);
 		return pow;
 	}
 
 	public byte[] escString(Slice body) {
-		int from = (int) uuid[0] >> 32;
+		int from = (int) (uuid[0] >>> 32);
 		int till = (int) (uuid[0] & INT32_FULL);
 		// FIXME check if binary;
 		return Arrays.copyOfRange(body.array(), from, till);

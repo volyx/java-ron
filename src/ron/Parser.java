@@ -418,7 +418,7 @@ case 1:
 			if ( _upper < _lower )
 				break;
 
-			_mid = _lower + ((_upper-_lower) >> 1);
+			_mid = _lower + ((_upper-_lower) >>> 1);
 			if ( ( frame.Body).get(p) < _RON_trans_keys[_mid] )
 				_upper = _mid - 1;
 			else if ( ( frame.Body).get(p) > _RON_trans_keys[_mid] )
@@ -441,13 +441,13 @@ case 1:
 			if ( _upper < _lower )
 				break;
 
-			_mid = _lower + (((_upper-_lower) >> 1) & ~1);
+			_mid = _lower + (((_upper-_lower) >>> 1) & ~1);
 			if ( ( frame.Body).get(p) < _RON_trans_keys[_mid] )
 				_upper = _mid - 2;
 			else if ( ( frame.Body).get(p) > _RON_trans_keys[_mid+1] )
 				_lower = _mid + 2;
 			else {
-				_trans += ((_mid - _keys)>>1);
+				_trans += ((_mid - _keys)>>>1);
 				break _match;
 			}
 		}
@@ -1071,7 +1071,7 @@ case 1:
 			if ( _upper < _lower )
 				break;
 
-			_mid = _lower + ((_upper-_lower) >> 1);
+			_mid = _lower + ((_upper-_lower) >>> 1);
 			if ( data[p] < _UUID_trans_keys[_mid] )
 				_upper = _mid - 1;
 			else if ( data[p] > _UUID_trans_keys[_mid] )
@@ -1094,13 +1094,13 @@ case 1:
 			if ( _upper < _lower )
 				break;
 
-			_mid = _lower + (((_upper-_lower) >> 1) & ~1);
+			_mid = _lower + (((_upper-_lower) >>> 1) & ~1);
 			if ( data[p] < _UUID_trans_keys[_mid] )
 				_upper = _mid - 2;
 			else if ( data[p] > _UUID_trans_keys[_mid+1] )
 				_lower = _mid + 2;
 			else {
-				_trans += ((_mid - _keys)>>1);
+				_trans += ((_mid - _keys)>>>1);
 				break _match;
 			}
 		}

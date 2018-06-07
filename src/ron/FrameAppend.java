@@ -43,7 +43,7 @@ public class FrameAppend {
 //		}
 //		tail -= tail % 6
 //		for i := 54; i >= tail; i -= 6 {
-//			output = append(output, BASE64[(value>>uint(i))&63])
+//			output = append(output, BASE64[(value>>>uint(i))&63])
 //		}
 //		return output
 //	}
@@ -56,7 +56,7 @@ public class FrameAppend {
 		}
 		tail -= tail % 6;
 		for (int i = 54; i >= tail; i -= 6) {
-			output = output.append(Const.BASE64.getBytes(StandardCharsets.UTF_8)[(int) (value >> i & 63)]);
+			output = output.append(Const.BASE64.getBytes(StandardCharsets.UTF_8)[(int) (value >>> i & 63)]);
 		}
 		return output;
 	}
@@ -147,7 +147,7 @@ public class FrameAppend {
 
 	public static boolean isBase64(byte b) {
 		int bi = (int) b;
-		return ((IS_BASE[bi >> 6] >> (bi & 63)) & 1) != 0;
+		return ((IS_BASE[bi >>> 6] >>> (bi & 63)) & 1) != 0;
 	}
 
 }

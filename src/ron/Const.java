@@ -223,6 +223,9 @@ public class Const {
 
 /// end
 
+	public static final int UUID_NAME_TRANSCENDENT = 0;
+	public static final int UUID_NAME_ISBN = 1;
+
 	public static final String BASE64 = new String(BASE_PUNCT, StandardCharsets.UTF_8);
 
 	public static final int ABC[] = new int[128];
@@ -243,7 +246,7 @@ public class Const {
 		for (int i = 0; i < BASE_PUNCT.length; i++) {
 			int li = BASE_PUNCT[i];
 			ABC[li] = i;
-			IS_BASE[li >> 6] |= 1L << (li & 63);
+			IS_BASE[li >>> 6] |= 1L << (li & 63);
 		}
 
 		initABC(PREFIX_PUNCT);

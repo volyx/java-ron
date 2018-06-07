@@ -583,6 +583,24 @@ public class Frame {
 //		}
 	}
 
+	// overall, serialized batches are used in rare cases
+// (delivery fails, cross-key transactions)
+// hence, we don't care about performance that much
+// still, may consider explicit-length formats at some point
+	public Batch split() {
+		Batch ret = new Batch();
+		for (;!eof();) {
+			Frame next = newFrame();
+			next.append(this);
+			this.next();
+			for (;!eof() && this.term() == TERM_REDUCED;) {
+				next.append(this);
+				this.next();
+			}
+			ret = ret.append(next.rewind());
+		}
+		return ret;
+	}
 
 
 //    Cursor Begin () {

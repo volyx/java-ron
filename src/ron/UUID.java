@@ -101,13 +101,13 @@ public class UUID implements Comparable<UUID> {
 	}
 
 	public int scheme() {
-		return (int) (this.uuid[1] >> 60) & 3;
+		return (int) (this.uuid[1] >>> 60) & 3;
 	}
 
 
 	public int variety() {
-		// order is important cause cast has higher priority than  >>
-		return (int) (this.uuid[0] >> 60);
+		// order is important cause cast has higher priority than  >>>
+		return (int) (this.uuid[0] >>> 60);
 	}
 
 	public byte sign() {
