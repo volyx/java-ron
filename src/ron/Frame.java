@@ -76,11 +76,12 @@ public class Frame {
         return ron.Parser.parseFrame(frame);
     }
 
-//	func MakeFormattedFrame(format uint, prealloc_bytes int) (ret Frame) {
-//		ret.Body = make([]byte, 0, prealloc_bytes)
-//		ret.Serializer.Format = format
-//		return
-//	}
+	public static Frame makeFormattedFrame(long format, int prealloc_bytes) {
+		Frame ret = new Frame();
+		ret.Body = new Slice(new byte[prealloc_bytes]);
+		ret.Serializer.Format = format;
+		return ret;
+	}
 
 	public static Frame makeFrame(int prealloc_bytes) {
 		Frame frame = new Frame();
@@ -517,6 +518,17 @@ public class Frame {
 		return Parse.parseFrame(this.Body);
 	}
 
+	public Frame reformat(long format) {
+		Frame ret = Frame.makeFrame(this.len());
+		ret.Serializer.Format = format;
+		Frame clone = this.clone();
+		for (;!clone.eof();) {
+			ret.append(clone);
+			clone.next();
+		}
+		return ret.rewind();
+	}
+
 	public int len() {
 		return this.Body.length();
 	}
@@ -583,6 +595,7 @@ public class Frame {
 //		}
 	}
 
+
 	// overall, serialized batches are used in rare cases
 // (delivery fails, cross-key transactions)
 // hence, we don't care about performance that much
@@ -602,6 +615,27 @@ public class Frame {
 		return ret;
 	}
 
+	public Frame clone() {
+		Frame clone = this;
+		clone.atoms = new Atom[this.atoms.length];
+		copy(clone.atoms, this.atoms);
+		long l = this.Body.length();
+		// prevent from appending to the same buffer
+//		clone.Body = this.Body[0:l:l];
+		clone.Body = new Slice(Arrays.copyOfRange(this.Body.array(), 0, (int) l));
+		return clone;
+	}
+//  = 881557636825219072
+//		  = 0
+//		  = {github.com/gritzko/ron.Atom} len:2
+//			= 1020592531424935936
+//			= 0
+//			= {github.com/gritzko/ron.Atom} len:2
+//			= 0
+//			= 0
+//			= {github.com/gritzko/ron.Atom} len:2
+//			= 0
+//			= 0
 
 //    Cursor Begin () {
 //        return null;

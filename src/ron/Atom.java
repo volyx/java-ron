@@ -64,9 +64,9 @@ public class Atom extends UUID {
 		uuid[half] |= value << (idx << 2);
 	}
 
-	public void arab64(int idx, int value) {
+	public void arab64(int idx, long value) {
 		uuid[idx] *= 10;
-		uuid[idx] += (long) value;
+		uuid[idx] += value;
 	}
 
 	public void set1(int half, int idx) {
@@ -100,7 +100,7 @@ public class Atom extends UUID {
 	}
 
 	public long integer() {
-		int neg = (int) uuid[1] & (1 << 60);
+		int neg = (int) (uuid[1] & (1 << 60));
 		long ret = uuid[0];
 		if (neg == 0) {
 			return ret;

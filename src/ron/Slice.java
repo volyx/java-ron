@@ -125,7 +125,7 @@ public class Slice {
 	}
 
 	public Slice append(long v) {
-		return append(longToBytes(v));
+		return append(Long.toUnsignedString(v));
 	}
 
 
@@ -138,21 +138,6 @@ public class Slice {
 		System.arraycopy(src.buf, 0, this.buf, offset, src.array().length);
 		return this;
 	}
-
-
-	private static ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
-
-	public static byte[] longToBytes(long x) {
-		buffer.putLong(0, x);
-		return buffer.array();
-	}
-
-	public static long bytesToLong(byte[] bytes) {
-		buffer.put(bytes, 0, bytes.length);
-		buffer.flip();//need flip
-		return buffer.getLong();
-	}
-
 
 	public static int checkElementIndex(int index, int size) {
 		if (index < 0 || index >= size) {

@@ -59,7 +59,7 @@ public class Batch {
 		Frame bf = new Frame();
 		Frame of = new Frame();
 		for (;(!bf.eof() || bi < this.frames.length) && (!of.eof() || oi < other.frames.length);) {
-			for (;bf.eof() && bi < frames.length;) {
+			for (;bf.eof() && bi < this.frames.length;) {
 				bf = this.frames[bi];
 				bi++;
 			}

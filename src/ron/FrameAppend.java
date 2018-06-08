@@ -56,7 +56,7 @@ public class FrameAppend {
 		}
 		tail -= tail % 6;
 		for (int i = 54; i >= tail; i -= 6) {
-			output = output.append(Const.BASE64.getBytes(StandardCharsets.UTF_8)[(int) (value >>> i & 63)]);
+			output = output.append(Const.BASE64.getBytes(StandardCharsets.UTF_8)[(int) ((value >>> i) & 63)]);
 		}
 		return output;
 	}
