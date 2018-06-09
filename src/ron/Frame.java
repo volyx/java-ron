@@ -1,19 +1,14 @@
 package ron;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
-import static java.util.Arrays.copyOfRange;
 import static ron.Atom.BIT60;
 import static ron.Atom.ZERO_UUID_ATOM;
 import static ron.Const.*;
 import static ron.FrameAppend.*;
-import static ron.Parser.IsComplete;
-import static ron.Parser.ORIGIN;
-import static ron.Parser.RON_error;
+import static ron.Parser.*;
 import static ron.UUID.COMMENT_UUID;
 import static ron.UUID.ZERO_UUID;
 
@@ -58,10 +53,10 @@ public class Frame {
         atoms = new Atom[0];
     }
     public Frame(Atom[] atoms, int term) {
-		super();
+		this();
         this.atoms = atoms;
         this.term = term;
-    }
+	}
 
 //	func OpenFrame(data []byte) Frame {
 //		frame := Frame{}
@@ -79,7 +74,7 @@ public class Frame {
 	public static Frame makeFormattedFrame(long format, int prealloc_bytes) {
 		Frame ret = new Frame();
 		ret.Body = new Slice(new byte[prealloc_bytes]);
-		ret.Serializer.Format = format;
+		ret.Serializer =  new SerializeState(format);
 		return ret;
 	}
 
@@ -147,13 +142,12 @@ public class Frame {
     // another from the current pos (incl) to the end. The right one is "stripped".
     public Pair<Frame, Frame> split2() {
         // TODO text vs binary
-        Frame frame = this;
         Frame left = new Frame();
-		left.Body = new Slice(Arrays.copyOfRange(frame.Body.array(), 0, frame.Parser.off));
+		left.Body = new Slice(Arrays.copyOfRange(this.Body.array(), 0, this.Parser.off));
 		left = ron.Parser.parseFrame(left);
-		Frame right = newBufferFrame(new Slice(new byte[128 + frame.Body.length() - frame.Parser.pos], 0));
-        right.append(frame);
-        right.appendBytes(frame.rest());
+		Frame right = newBufferFrame(new Slice(new byte[128 + this.Body.length() - this.Parser.pos], 0));
+        right.append(this);
+        right.appendBytes(this.rest());
         return Pair.create(left, right);
     }
 
@@ -195,7 +189,7 @@ public class Frame {
 
 		if (0 != (flags & FORMAT_GRID)) {
 			int rest = 4 * 22 - frame.Body.length() - start;
-			frame.Body = frame.Body.append( copyOfRange(Slice.toBytes(SPACES88), 0, rest));
+			frame.Body = frame.Body.append(Arrays.copyOfRange(Slice.toBytes(SPACES88), 0, rest));
 		}
 
 		frame.appendAtoms(other);
@@ -210,10 +204,10 @@ public class Frame {
 		}
 
 		if (other.atoms.length > frame.atoms.length) {
-			copy(frame.atoms, copyOfRange(other.atoms, 0, frame.atoms.length));
+			frame.atoms = copyOfRange(other.atoms, 0, frame.atoms.length);
 			frame.atoms = append(frame.atoms, other.atoms[frame.atoms.length]);
 		} else {
-			copy(frame.atoms, other.atoms);
+			frame.atoms = copy(other.atoms);
 			frame.atoms = copyOfRange(frame.atoms, 0, other.atoms.length);
 		}
 		frame.term = other.term;
@@ -226,15 +220,11 @@ public class Frame {
 	}
 
 	public String string() {
-		return new String(this.Body.array(), StandardCharsets.UTF_8);
+		return new String(Arrays.copyOfRange(this.Body.array(), 0, this.Body.length()), StandardCharsets.UTF_8);
 	}
 
 	public int term() {
 		return this.term;
-	}
-
-	public static <T> void copy(T[] dest, T[] src) {
-    	System.arraycopy(src, 0, dest, 0, src.length);
 	}
 
 	public UUID object() {
@@ -482,13 +472,62 @@ public class Frame {
 	}
 
 	public static Atom[] append(Atom[] a, Atom b) {
-//		final List<T> list = new ArrayList<>(Arrays.asList(a));
-//		list.add(b);
-//		return (T[]) list.toArray(new Object[list.size()]);
-		Atom[] c = new Atom[a.length + 1];
-		System.arraycopy(a, 0, c, 0, a.length);
-		c[a.length] = b;
+    	Objects.requireNonNull(a);
+    	Objects.requireNonNull(b);
+		return append(a, new Atom[]{b});
+	}
+
+	public static Atom[] append(Atom[] a, Atom[] b) {
+		Atom[] c = new Atom[a.length + b.length];
+		for (int i = 0;i <= a.length - 1; i++) {
+			Objects.requireNonNull(a[i]);
+			c[i] = new Atom(a[i]);
+//			c[i] = a[i];
+		}
+		for (int j = 0;j <= b.length - 1; j++) {
+			Objects.requireNonNull(b[j]);
+			c[a.length + j] = new Atom(b[j]);
+//			c[a.length + j] = b[j];
+		}
 		return c;
+	}
+
+	public static Atom[] copy(Atom[] b) {
+		Atom[] a = new Atom[b.length];
+		for (int i = 0;i <= b.length - 1; i++) {
+			Objects.requireNonNull(b[i]);
+			a[i] = new Atom(b[i]);
+		}
+		return a;
+	}
+
+	public static Atom[] copyOfRange(Atom[] original, int from, int to) {
+//    	if (s > e) {
+//    		throw new IllegalStateException();
+//		}
+//		Atom[] c = new Atom[e - s];
+//		int j = 0;
+//		while (s < e) {
+//			Objects.requireNonNull(a[s]);
+//			c[j] = new Atom(a[s]);
+//			j++;s++;
+//		}
+//		return c;
+//		return Arrays.copyOfRange(a, s ,e);
+
+//		System.out.println(" input: " + Arrays.toString( original) + " " + from + " " + to);
+		int newLength = to - from;
+		if (newLength < 0)
+			throw new IllegalArgumentException(from + " > " + to);
+
+		Atom[] copy = new Atom[newLength];
+		final int realLength = Math.min(original.length - from, newLength);
+//		for (int i = 0; i < realLength; i++) {
+//			copy[i] = new Atom(original[from + i]);
+//		}
+		System.arraycopy(original, from, copy, 0, realLength);
+//		System.out.println("output: " + Arrays.toString( copy) + " " + from + " " + to);
+		return copy;
 	}
 
 //	func (frame *Frame) Next() bool {
@@ -504,12 +543,12 @@ public class Frame {
 
 
 	public boolean next() {
-        Frame frame = ron.Parser.parseFrame(this);
-        if (frame.Parser.state == RON_error) {
+        ron.Parser.parseFrame(this);
+        if (this.Parser.state == RON_error) {
             return false;
         }
-        if (frame.Parser.streaming) {
-            return IsComplete(frame);
+        if (this.Parser.streaming) {
+            return IsComplete(this);
         }
         return true;
     }
@@ -602,13 +641,20 @@ public class Frame {
 // still, may consider explicit-length formats at some point
 	public Batch split() {
 		Batch ret = new Batch();
+		int i = 0;
 		for (;!eof();) {
 			Frame next = newFrame();
+//			System.out.println(i++ + " 1 " + next.string() + Arrays.asList(next.atoms)+ "\n" + Arrays.asList(this.atoms));
 			next.append(this);
+//			System.out.println(i++ + " 2 " + next.string() + Arrays.asList(next.atoms)+ "\n" + Arrays.asList(this.atoms));
 			this.next();
+//			System.out.println(i++ + " 3 " + next.string() + Arrays.asList(next.atoms)+ "\n" + Arrays.asList(this.atoms));
 			for (;!eof() && this.term() == TERM_REDUCED;) {
+//				System.out.println(i++ + " 4 " + next.string() + Arrays.asList(next.atoms)+ "\n" + Arrays.asList(this.atoms));
 				next.append(this);
+//				System.out.println(i++ + " 5 " + next.string() + Arrays.asList(next.atoms)+ "\n" + Arrays.asList(this.atoms));
 				this.next();
+//				System.out.println(i++ + " 6 " + next.string() + Arrays.asList(next.atoms) + "\n" + Arrays.asList(this.atoms));
 			}
 			ret = ret.append(next.rewind());
 		}
@@ -616,30 +662,17 @@ public class Frame {
 	}
 
 	public Frame clone() {
-		Frame clone = this;
+		Frame clone = new Frame();
+		clone.Parser = new ParserState(this.Parser);
+		clone.Serializer = new SerializeState(this.Serializer);
 		clone.atoms = new Atom[this.atoms.length];
-		copy(clone.atoms, this.atoms);
+		clone.term = this.term;
+		clone.binary = this.binary;
+		clone.atoms = copy(this.atoms);
 		long l = this.Body.length();
 		// prevent from appending to the same buffer
 //		clone.Body = this.Body[0:l:l];
 		clone.Body = new Slice(Arrays.copyOfRange(this.Body.array(), 0, (int) l));
 		return clone;
 	}
-//  = 881557636825219072
-//		  = 0
-//		  = {github.com/gritzko/ron.Atom} len:2
-//			= 1020592531424935936
-//			= 0
-//			= {github.com/gritzko/ron.Atom} len:2
-//			= 0
-//			= 0
-//			= {github.com/gritzko/ron.Atom} len:2
-//			= 0
-//			= 0
-
-//    Cursor Begin () {
-//        return null;
-//    }
-//
-//    void Append (Op op) {}
 }

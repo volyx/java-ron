@@ -2,8 +2,6 @@ package ron;
 
 import org.junit.Assert;
 import org.junit.Test;
-import ron.Frame;
-import ron.Parse;
 
 import static ron.Const.TERM_HEADER;
 import static ron.UUID.COMMENT_UUID;
@@ -19,10 +17,10 @@ public class FrameTest {
 		batch = batch.append(Parse.parseFrameString(frame1));
 		batch = batch.append(Parse.parseFrameString(frame2));
 		Frame frame12 = batch.join();
+		//		Slice{buf=*lww#A@1!:a=1}
 		String batchStr = "*lww#A@1!:a=1:b=2:c=3*#@2:0!:d=4";
 		if (!frame12.string().equals(batchStr)) {
-			System.err.printf("\n%s != \n%s\n", frame12.string(), batchStr);
-			throw new RuntimeException("Fail");
+			Assert.fail(String.format("\n%s != \n%s\n", frame12.string(), batchStr));
 		}
 //		b2 := frame12.Split()
 //		if len(b2) != 2 {
@@ -50,29 +48,28 @@ public class FrameTest {
 		frame.next();
 		frame.next();
 		if (frame.term() != TERM_HEADER) {
-			throw new RuntimeException("Fail");
+			Assert.fail("Fail");
 		}
 		final Pair<Frame, Frame> pair = frame.split2();
 		Frame id1 = pair.getLeft();
 		Frame id2 = pair.getRight();
 		if (!id1.string().equals(h1)) {
-			System.err.printf("\nneed: %s\nhave: %s\n", h1, id1.string());
-			throw new RuntimeException("Fail left");
+			Assert.fail(String.format("Fail left\nneed: %s\nhave: %s\n", h1, id1.string()));
 		}
 		if (!id2.string().equals(h2)) {
-			System.err.printf("\nneed: %s\nhave: %s\n", h2, id2.string());
-			throw new RuntimeException("Fail right");
+			Assert.fail(String.format("Fail right \nneed: %s\nhave: %s", h2, id2.string()));
 		}
 		if (!id2.type().equals(UUID.newName("lww"))) {
-			throw new RuntimeException("Fail");
+			Assert.fail("Fail");
 		}
 	}
 
 	@Test
 	public void TestFrame_SplitMultiframe() {
+		System.out.println("TestFrame_SplitMultiframe java");
 		String multiStr = "*lww#test!:a=1*#best:0!:b=2:c=3*#:d=4;";
 		String[] splits = new String[] {
-			"*lww#test!:a=1",
+					"*lww#test!:a=1",
 					"*lww#best!:b=2:c=3",
 					"*lww#best:d=4",
 		};
@@ -104,7 +101,7 @@ public class FrameTest {
 	@Test
 	public void estFrame_Copy() {
 		Frame a = Parse.parseFrameString("*~'comment' *lww#obj!");
-		Frame b = a;
+		Frame b = a.clone();
 		if (!b.type().equals(COMMENT_UUID)) {
 			Assert.fail("improper copy");
 		}

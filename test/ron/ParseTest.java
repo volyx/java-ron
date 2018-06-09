@@ -360,7 +360,7 @@ public class ParseTest {
 		}
 	}
 
-	@Test
+	@Test(timeout = 5_000L)
 	public void TestParseComment() {
 		String[][] tests = new String[][]{
 			{
@@ -384,7 +384,6 @@ public class ParseTest {
 				Assert.fail(String.format("%d need \n'%s'\n got \n'%s'\n", k, correct.opString(), frame.opString()));
 			}
 		}
-
 	}
 
 	@Test
@@ -539,7 +538,7 @@ public class ParseTest {
 		frame.next();
 		UUID uuid3 = frame.Atom(0).UUID();
 		if (!uuid1.equals(uuid3)) {
-			Assert.fail();
+			Assert.fail(String.format("%s !=\n%s", uuid1, uuid3));
 		}
 	}
 

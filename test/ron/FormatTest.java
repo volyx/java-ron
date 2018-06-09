@@ -107,9 +107,7 @@ public class FormatTest {
 				frame.next();
 			}
 			if (!formatted.string().equals(f.correct)) {
-				System.out.printf("incorrect format at %d\n---\n%s\n---should be---\n%s\n", k, formatted.string(), f.correct);
-				System.out.printf("parsed as %s\n", formatted.rewind().reformat(FRAME_FORMAT_CARPET).string());
-				Assert.fail();
+				Assert.fail(String.format("incorrect format at %d\n---\n%s\n---should be---\n%s\n\nparsed as %s\n", k, formatted.string(), f.correct, formatted.rewind().reformat(FRAME_FORMAT_CARPET).string()));
 			}
 		}
 

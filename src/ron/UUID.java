@@ -215,9 +215,6 @@ public class UUID implements Comparable<UUID> {
 
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder("UUID{");
-		sb.append("uuid=").append(Arrays.toString(uuid));
-		sb.append('}');
-		return sb.toString();
+		return Arrays.toString(uuid);
 	}
 }

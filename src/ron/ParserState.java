@@ -15,9 +15,23 @@ public class ParserState {
     // uint8
     public int omitted;
 
+    public ParserState() {}
+
+    public ParserState(ParserState ps) {
+        this.atm = ps.atm;
+        this.hlf = ps.hlf;
+        this.dgt = ps.dgt;
+        this.state = ps.state;
+        this.off = ps.off;
+        this.pos = ps.pos;
+        this.streaming = ps.streaming;
+        this.omitted = ps.omitted;
+    }
+
     public int state() {
         return this.state;
     }
+
 
     @Override
     public String toString() {

@@ -93,8 +93,6 @@ public class Atom extends UUID {
 		this.uuid[1] = origin;
 	}
 
-	// go 13835058055282229248 >>> 62 = 1
-	// java -4611686018427322368L >>> 62 = -1
 	public int type() {
 		return (int) (uuid[1] >>> 62);
 	}
