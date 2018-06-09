@@ -114,8 +114,8 @@ public class FrameTest {
 	@Test
 	public void TestFrame_Split2() {
 		Frame frame = Parse.parseFrameString("*rga#test@4!@1'A'@2'B'*#@4:rm!:3,");
-		Batch split = frame.split();
-		boolean eq = split.equals(new Batch(frame));
+		Batch split = frame.clone().split();
+		boolean eq = split.equals(new Batch(frame.clone()));
 		if (!eq) {
 			Assert.fail(String.format("split fail, \n%s\nbecame\n%s", frame.string(), split.string()));
 		}

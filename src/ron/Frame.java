@@ -73,7 +73,7 @@ public class Frame {
 
 	public static Frame makeFormattedFrame(long format, int prealloc_bytes) {
 		Frame ret = new Frame();
-		ret.Body = new Slice(new byte[prealloc_bytes]);
+		ret.Body = new Slice(new byte[prealloc_bytes], 0);
 		ret.Serializer =  new SerializeState(format);
 		return ret;
 	}
@@ -188,7 +188,7 @@ public class Frame {
 		frame.appendSpec(other);
 
 		if (0 != (flags & FORMAT_GRID)) {
-			int rest = 4 * 22 - frame.Body.length() - start;
+			int rest = 4 * 22 - (frame.Body.length() - start);
 			frame.Body = frame.Body.append(Arrays.copyOfRange(Slice.toBytes(SPACES88), 0, rest));
 		}
 
@@ -487,7 +487,6 @@ public class Frame {
 		for (int j = 0;j <= b.length - 1; j++) {
 			Objects.requireNonNull(b[j]);
 			c[a.length + j] = new Atom(b[j]);
-//			c[a.length + j] = b[j];
 		}
 		return c;
 	}
@@ -520,8 +519,8 @@ public class Frame {
 		if (newLength < 0)
 			throw new IllegalArgumentException(from + " > " + to);
 
-		Atom[] copy = new Atom[newLength];
 		final int realLength = Math.min(original.length - from, newLength);
+		Atom[] copy = new Atom[realLength];
 //		for (int i = 0; i < realLength; i++) {
 //			copy[i] = new Atom(original[from + i]);
 //		}
@@ -633,7 +632,6 @@ public class Frame {
 //			return eq
 //		}
 	}
-
 
 	// overall, serialized batches are used in rare cases
 // (delivery fails, cross-key transactions)
