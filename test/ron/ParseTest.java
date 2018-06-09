@@ -453,10 +453,10 @@ public class ParseTest {
 			Frame frame = Parse.parseFrameString(frames[i][0]);
 			if (frame.count() != 1 || frame.Atom(0).type() != ATOM_FLOAT) {
 				Assert.fail("misparsed a float " + i);
-			} // -3458764513820409856
+			}
 			Atom atom = frame.Atom(0);
 			double val = atom.Float();
-			if (Math.abs(val-vals[i]) > 0.001) {
+			if (Math.abs(val - vals[i]) > 0.001) {
 				Assert.fail(String.format("%d float value unparsed %e!=%e", i, val, vals[i]));
 			}
 			Frame back = Frame.newFrame();

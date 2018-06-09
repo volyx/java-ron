@@ -70,7 +70,7 @@ public class Atom extends UUID {
 	}
 
 	public void set1(int half, int idx) {
-		uuid[half] |= 1 << idx;
+		uuid[half] |= 1L << idx;
 	}
 
 	public void inc16(int half, long idx) {
@@ -81,8 +81,12 @@ public class Atom extends UUID {
 		uuid[half] |= (i & INT16_FULL) << shift;
 	}
 
-	public void arab16(int origin, int i) {
-		throw new UnsupportedOperationException();
+	public void arab16(int half, long value) {
+		long i = uuid[half] & INT16_FULL;
+		i *= 10;
+		i += value;
+		uuid[half] &= uuid[half] ^ INT16_FULL;
+		uuid[half] |= i & INT16_FULL;
 	}
 
 	public void set32(int half, int idx, long value) {

@@ -173,7 +173,7 @@ public class Frame {
 		Frame frame = this;
 		long flags = this.Serializer.Format;
 		int start = this.Body.length();
-		if (frame.Body.length() > 0 && (0 != (flags & FORMAT_OP_LINES)) || (0 != (flags & FORMAT_FRAME_LINES) && !other.isFramed())) {
+		if (frame.Body.length() > 0 && ((0 != (flags & FORMAT_OP_LINES)) || (0 != (flags & FORMAT_FRAME_LINES) && !other.isFramed()))) {
 			frame.Body = frame.Body.append('\n');
 			if (0 != (flags & FORMAT_INDENT) && !other.isHeader()) {
 				frame.Body = frame.Body.append("    ");
