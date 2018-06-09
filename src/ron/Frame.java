@@ -482,7 +482,6 @@ public class Frame {
 		for (int i = 0;i <= a.length - 1; i++) {
 			Objects.requireNonNull(a[i]);
 			c[i] = new Atom(a[i]);
-//			c[i] = a[i];
 		}
 		for (int j = 0;j <= b.length - 1; j++) {
 			Objects.requireNonNull(b[j]);

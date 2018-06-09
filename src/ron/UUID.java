@@ -212,6 +212,25 @@ public class UUID implements Comparable<UUID> {
 		}
 	}
 
+	public static UUID[] append(UUID[] a, UUID b) {
+		Objects.requireNonNull(a);
+		Objects.requireNonNull(b);
+		return append(a, new UUID[]{b});
+	}
+
+	public static UUID[] append(UUID[] a, UUID[] b) {
+		UUID[] c = new UUID[a.length + b.length];
+		for (int i = 0;i <= a.length - 1; i++) {
+			Objects.requireNonNull(a[i]);
+			c[i] = new UUID(a[i]);
+		}
+		for (int j = 0;j <= b.length - 1; j++) {
+			Objects.requireNonNull(b[j]);
+			c[a.length + j] = new UUID(b[j]);
+		}
+		return c;
+	}
+
 
 	@Override
 	public String toString() {

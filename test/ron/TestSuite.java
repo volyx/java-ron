@@ -10,6 +10,7 @@ import org.junit.runners.Suite;
 		ParseTest.class,
 		UUIDTest.class,
 		VVectorTest.class,
+		UUIDMultiMapTest.class,
 })
 public class TestSuite {
 }

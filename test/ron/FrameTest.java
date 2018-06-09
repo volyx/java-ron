@@ -22,20 +22,16 @@ public class FrameTest {
 		if (!frame12.string().equals(batchStr)) {
 			Assert.fail(String.format("\n%s != \n%s\n", frame12.string(), batchStr));
 		}
-//		b2 := frame12.Split()
-//		if len(b2) != 2 {
-//			t.Fail()
-//			t.Log("length", len(b2))
-//			return
-//		}
-//		if b2[0].String() != frame1 {
-//			t.Fail()
-//			t.Logf("%s != %s\n", b2[0].String(), frame1)
-//		}
-//		if b2[1].String() != frame2 {
-//			t.Fail()
-//			t.Logf("%s != %s\n", b2[0].String(), frame1)
-//		}
+		Batch b2 = frame12.split();
+		if (b2.frames.length != 2) {
+			Assert.fail(String.format("length %d", b2.frames.length));
+		}
+		if (!b2.frames[0].string().equals(frame1)) {
+			Assert.fail(String.format("%s != %s\n", b2.frames[0].string(), frame1));
+		}
+		if (!b2.frames[1].string().equals(frame2)) {
+			Assert.fail(String.format("%s != %s\n", b2.frames[0].string(), frame1));
+		}
 	}
 
 	@Test
