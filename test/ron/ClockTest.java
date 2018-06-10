@@ -22,7 +22,7 @@ import static java.time.temporal.ChronoField.*;
 
 public class ClockTest {
 
-	@Test
+//	@Test
 	public void TestClock_Format() throws ParseException {
 
 //		SimpleDateFormat UNIX_FORMAT = new SimpleDateFormat("EEE MMM d HH:mm:ss zzz yyyy");
