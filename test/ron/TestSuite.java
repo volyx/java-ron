@@ -11,6 +11,7 @@ import org.junit.runners.Suite;
 		UUIDTest.class,
 		VVectorTest.class,
 		UUIDMultiMapTest.class,
+		UUIDHeapTest.class,
 })
 public class TestSuite {
 }
