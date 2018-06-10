@@ -13,11 +13,11 @@ public class FrameHeap implements IHeap {
 	private PriorityQueue<Frame> iters;
 
 
-	public static IHeap makeFrameHeap(Comparator<Frame> primary, Comparator<Frame> secondary , int size) {
-		FrameHeap ret = new FrameHeap();
-		ret.iters = new PriorityQueue<>(comparator(primary, secondary));
-		return ret;
-	}
+//	public static IHeap makeFrameHeap(Comparator<Frame> primary, Comparator<Frame> secondary , int size) {
+//		FrameHeap ret = new FrameHeap();
+//		ret.iters = new PriorityQueue<>(comparator(primary, secondary));
+//		return ret;
+//	}
 
 	public static Comparator<Frame> comparator(Comparator<Frame> primary, Comparator<Frame> secondary) {
 		return (a, b) -> {

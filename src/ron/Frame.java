@@ -51,6 +51,7 @@ public class Frame {
 //            atoms[i] = new Atom(0L, 0L);
 //        }
         atoms = new Atom[0];
+		this.Body = new Slice(new byte[0]);
     }
     public Frame(Atom[] atoms, int term) {
 		this();
@@ -90,6 +91,12 @@ public class Frame {
 		ret.Parser.streaming = true;
 		//ret.Parser.state = RON_start
 		return ret;
+	}
+
+	public Atom[] spec() {
+//		var ret [4]Atom
+		return copyOfRange(this.atoms, 0, 4);
+//		return ret[:]
 	}
 
 //	func MakeFrame(prealloc_bytes int) (ret Frame) {
@@ -260,6 +267,10 @@ public class Frame {
 
 	public boolean isFramed() {
 		return this.term() == TERM_REDUCED;
+	}
+
+	public boolean isFullState() {
+		return this.isHeader() && this.ref().isZero();
 	}
 
 	public void appendBytes(byte[] data) {
@@ -454,6 +465,13 @@ public class Frame {
 		System.arraycopy(spec, 0, atoms, 0, 4);
 		Frame tmp = new Frame(atoms, term);
 		this.append(tmp);
+	}
+
+	public void appendReduced(Frame other) {
+		var tmpTerm = other.term;
+		other.term = TERM_REDUCED;
+		this.append(other);
+		other.term = tmpTerm;
 	}
 
 //	func (frame *Frame) AppendReducedOpInt(spec Spec, value int64) {

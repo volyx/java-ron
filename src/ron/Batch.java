@@ -10,6 +10,9 @@ public class Batch {
 	public Batch(Frame frame) {
 		this.frames = new Frame[] {frame};
 	}
+	public Batch(Frame[] frames) {
+		this.frames = frames;
+	}
 
 	public Batch append(Frame frame) {
 		Frame[] frames = new Frame[this.frames.length + 1];
@@ -82,6 +85,15 @@ public class Batch {
 	}
 
 
+	public boolean hasFullState() {
+		for (Frame f : this.frames) {
+			if (f.isFullState()) {
+				return true;
+			}
+		}
+		return false;
+
+	}
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;

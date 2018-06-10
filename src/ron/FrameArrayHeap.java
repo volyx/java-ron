@@ -185,6 +185,11 @@ public class FrameArrayHeap implements IHeap {
 		return this.current();
 	}
 
+	@Override
+	public void clear() {
+		this.iters = Frame.copyOfRange(iters, 0 ,1);
+	}
+
 	public static Comparator<Frame> eventComparator() {
 		return Comparator.comparing(Frame::event);
 	}

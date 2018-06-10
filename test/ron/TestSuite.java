@@ -2,6 +2,8 @@ package ron;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import ron.rdt.Log;
+import ron.rdt.Lww;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -14,6 +16,8 @@ import org.junit.runners.Suite;
 		UUIDMultiMapTest.class,
 		UUIDHeapTest.class,
 		FrameHeapTest.class,
+		LogTest.class,
+		LwwTest.class,
 })
 public class TestSuite {
 }

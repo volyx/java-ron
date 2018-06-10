@@ -1,6 +1,7 @@
 package ron;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 
 public class Slice {
@@ -63,6 +64,9 @@ public class Slice {
 		return c.getBytes(StandardCharsets.UTF_8);
 	}
 
+	public String string() {
+		return new String(Arrays.copyOfRange(this.buf, 0, offset), StandardCharsets.UTF_8);
+	}
 
 	public Slice copy(Slice src, int offset) {
 		System.arraycopy(src.buf, 0, this.buf, offset, src.array().length);

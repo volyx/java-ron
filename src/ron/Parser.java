@@ -337,12 +337,12 @@ private static Atom[] append(Atom[] arr, Atom element) {
                          return frame;
                      }
                     
-// line 341 "java/src/ron/Parser.java"
+// line 337 "java/src/ron/Parser.java"
 	{
 	( ps.state) = RON_start;
 	}
 
-// line 45 "ragel/java-parser.rl"
+// line 41 "ragel/java-parser.rl"
                      frame.position = -1;
                      // frame.atoms = frame._atoms[:4]
                      frame.atoms = Frame.copyOfRange(frame._atoms, 0, 4);
@@ -381,7 +381,7 @@ private static Atom[] append(Atom[] arr, Atom element) {
              int p = ps.pos;
 
             
-// line 385 "java/src/ron/Parser.java"
+// line 381 "java/src/ron/Parser.java"
 	{
 	int _klen;
 	int _trans = 0;
@@ -743,7 +743,7 @@ case 1:
         { p += 1; _goto_targ = 5; if (true)  continue _goto;}
     }
 	break;
-// line 747 "java/src/ron/Parser.java"
+// line 743 "java/src/ron/Parser.java"
 			}
 		}
 	}
@@ -826,7 +826,7 @@ case 4:
 	{
     }
 	break;
-// line 830 "java/src/ron/Parser.java"
+// line 826 "java/src/ron/Parser.java"
 		}
 	}
 	}
@@ -836,7 +836,7 @@ case 5:
 	break; }
 	}
 
-// line 88 "ragel/java-parser.rl"
+// line 84 "ragel/java-parser.rl"
 
 
              ps.atm = atm; ps.hlf = hlf; ps.dgt = dgt;
@@ -883,9 +883,9 @@ case 5:
     }
 
       
-// line 133 "ragel/java-parser.rl"
+// line 129 "ragel/java-parser.rl"
       
-// line 888 "java/src/ron/Parser.java"
+// line 884 "java/src/ron/Parser.java"
 private static byte[] init__UUID_actions_0()
 {
 	return new byte [] {
@@ -1012,7 +1012,7 @@ static final int UUID_error = 0;
 static final int UUID_en_main = 1;
 
 
-// line 134 "ragel/java-parser.rl"
+// line 130 "ragel/java-parser.rl"
 
 
     // func ()
@@ -1029,12 +1029,12 @@ static final int UUID_en_main = 1;
         Atom[] atoms = new Atom[] {new Atom(ctx_uuid)};
 
     	
-// line 1032 "java/src/ron/Parser.java"
+// line 1028 "java/src/ron/Parser.java"
 	{
 	cs = UUID_start;
 	}
 
-// line 1037 "java/src/ron/Parser.java"
+// line 1033 "java/src/ron/Parser.java"
 	{
 	int _klen;
 	int _trans = 0;
@@ -1173,7 +1173,7 @@ case 1:
 	atoms[atm].reset4(ORIGIN, 15, ABC[data[p]]);
     }
 	break;
-// line 1176 "java/src/ron/Parser.java"
+// line 1172 "java/src/ron/Parser.java"
 			}
 		}
 	}
@@ -1210,7 +1210,7 @@ case 4:
         atoms[atm].setOrigin(UUID_NAME_FLAG);
     }
 	break;
-// line 1213 "java/src/ron/Parser.java"
+// line 1209 "java/src/ron/Parser.java"
 		}
 	}
 	}
@@ -1220,7 +1220,7 @@ case 5:
 	break; }
 	}
 
-// line 156 "ragel/java-parser.rl"
+// line 152 "ragel/java-parser.rl"
 
 
         if (cs < UUID_first_final || dgt > 10) {

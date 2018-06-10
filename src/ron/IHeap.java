@@ -1,6 +1,9 @@
 package ron;
 
+import java.util.Comparator;
+
 public interface IHeap {
+
 	void putFrame(Frame frame);
 
 	Frame frame();
@@ -14,4 +17,6 @@ public interface IHeap {
 	boolean eof();
 
 	Frame nextPrim();
+
+	void clear();
 }
