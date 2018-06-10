@@ -12,11 +12,11 @@ public class OpTest {
 	public void TestParseOp() {
 		var frame = "*lww#test-author@(time-origin:loc=1''>test";
 		Frame iter = Parse.parseFrameString(frame);
-		if (!iter.type().stringValue().equals("lww")) {
-			Assert.fail(String.format("'%s' %s != '%s'\n", iter.type().stringValue(), Arrays.toString(iter.type().stringValue().getBytes(StandardCharsets.UTF_8)), "lww"));
+		if (!iter.type().string().equals("lww")) {
+			Assert.fail(String.format("'%s' %s != '%s'\n", iter.type().string(), Arrays.toString(iter.type().string().getBytes(StandardCharsets.UTF_8)), "lww"));
 		}
-		if (!iter.object().stringValue().equals("test-author")) {
-			Assert.fail(String.format("'%s' %s != '%s'\n", iter.type().stringValue(), Arrays.toString(iter.object().stringValue().getBytes(StandardCharsets.UTF_8)), "test-author"));
+		if (!iter.object().string().equals("test-author")) {
+			Assert.fail(String.format("'%s' %s != '%s'\n", iter.type().string(), Arrays.toString(iter.object().string().getBytes(StandardCharsets.UTF_8)), "test-author"));
 		}
 		System.out.println(iter.opString());
 		long i = iter.integer(0);

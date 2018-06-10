@@ -67,7 +67,7 @@ public class ParseTest {
 			UUID context = Parse.parseUUIDString(tri[0]);
 			UUID uuid = Parse.parseUUIDString(context, tri[1]);
 
-			String str = uuid.stringValue();
+			String str = uuid.string();
 			if (!str.equals(tri[2])) {
 				Assert.fail(String.format("parse %d: %s must be %s", i, str, tri[2]));
 			}
@@ -141,7 +141,7 @@ public class ParseTest {
 				continue;
 			}
 			if (!next.equals(unzipped)) {
-				Assert.fail(String.format("uuid parse fail at %d: '%s' should be '%s' context %s len %d", i, next.stringValue(), test32[i][1], defstr, zipped.length()));
+				Assert.fail(String.format("uuid parse fail at %d: '%s' should be '%s' context %s len %d", i, next.string(), test32[i][1], defstr, zipped.length()));
 			}
 		}
 	}
@@ -211,7 +211,7 @@ public class ParseTest {
 			for (int u = 0; u < 4; u++) {
 				UUID uuid  = iter.UUID(u);
 				if (!uuid.equals(uuids[at+u])) {
-					Assert.fail(String.format("uuid %d decoding failed in op#%d, '%s' should be '%s'", u, k, iter.UUID(u).stringValue(), uuids[at+u].stringValue()));
+					Assert.fail(String.format("uuid %d decoding failed in op#%d, '%s' should be '%s'", u, k, iter.UUID(u).string(), uuids[at+u].string()));
 				}
 			}
 			iter.next();
@@ -238,10 +238,10 @@ public class ParseTest {
 			if (frame.offset() != l) {
 				Assert.fail(String.format("bad off: %d not %d '%s'", frame.offset(), l, frameStr));
 			} else {
-//				System.out.printf("OK %d %s", i, frame.type().stringValue());
+//				System.out.printf("OK %d %s", i, frame.type().string());
 			}
 			i++;
-			names += frame.type().stringValue();
+			names += frame.type().string();
 			Parser.parseFrame(frame);
 		}
 		if (i != ops.length || !names.equals("abcde")) {

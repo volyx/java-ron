@@ -196,7 +196,7 @@ public class UUID implements Comparable<UUID> {
 		return new String(formatZipUUID(new Slice(arr, 0), this, context).array());
 	}
 
-	public String stringValue() {
+	public String string() {
 		String ret = this.zipString(ZERO_UUID);
 		if (ret.length() == 0) {
 			ret = "0";
@@ -206,7 +206,7 @@ public class UUID implements Comparable<UUID> {
 
 	public String error() {
 		if (this.isError()) {
-			return this.stringValue();
+			return this.string();
 		} else {
 			return "";
 		}

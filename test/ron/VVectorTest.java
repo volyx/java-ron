@@ -13,15 +13,15 @@ public class VVectorTest {
 		vec.addString("3-B");
 		vec.addString("4+A");
 		UUID A = Parse.parseUUIDString("+A");
-		if (!vec.getUUID(A).stringValue().equals("4+A")) {
+		if (!vec.getUUID(A).string().equals("4+A")) {
 			Assert.fail();
 		}
 		UUID pB = Parse.parseUUIDString("+B");
-		if (!vec.getUUID(pB).stringValue().equals("2+B")) {
+		if (!vec.getUUID(pB).string().equals("2+B")) {
 			Assert.fail();
 		}
 		UUID mB = Parse.parseUUIDString("-B");
-		if (!vec.getUUID(mB).stringValue().equals("3-B")) {
+		if (!vec.getUUID(mB).string().equals("3-B")) {
 			Assert.fail();
 		}
 	}

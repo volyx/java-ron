@@ -40,7 +40,7 @@ public class FormatTest {
 
 			String zip = uuid.zipString(context);
 			if (!zip.equals(tri[2])) {
-				Assert.fail(String.format("case %d: %s must be %s (%s, %s)", i, zip, tri[2], uuid.stringValue(), context.stringValue()));
+				Assert.fail(String.format("case %d: %s must be %s (%s, %s)", i, zip, tri[2], uuid.string(), context.string()));
 			}
 		}
 	}

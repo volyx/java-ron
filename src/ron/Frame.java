@@ -173,49 +173,52 @@ public class Frame {
     	this.appendAll(second);
 	}
 
+	public Frame close() {
+		return parseFrame(this);
+	}
+
 	public void append(Frame other) {
-		Frame frame = this;
 		long flags = this.Serializer.Format;
 		int start = this.Body.length();
-		if (frame.Body.length() > 0 && ((0 != (flags & FORMAT_OP_LINES)) || (0 != (flags & FORMAT_FRAME_LINES) && !other.isFramed()))) {
-			frame.Body = frame.Body.append('\n');
+		if (this.Body.length() > 0 && ((0 != (flags & FORMAT_OP_LINES)) || (0 != (flags & FORMAT_FRAME_LINES) && !other.isFramed()))) {
+			this.Body = this.Body.append('\n');
 			if (0 != (flags & FORMAT_INDENT) && !other.isHeader()) {
-				frame.Body = frame.Body.append("    ");
+				this.Body = this.Body.append("    ");
 			}
-		} else if (0 != (flags & FORMAT_HEADER_SPACE) && frame.isHeader()) {
-			frame.Body = frame.Body.append(' ');
+		} else if (0 != (flags & FORMAT_HEADER_SPACE) && this.isHeader()) {
+			this.Body = this.Body.append(' ');
 		}
 
-		if (frame.atoms.length == 0) {
-			frame.atoms = copyOfRange(frame._atoms, 0, 4);
+		if (this.atoms.length == 0) {
+			this.atoms = copyOfRange(this._atoms, 0, 4);
 		}
-		frame.appendSpec(other);
+		this.appendSpec(other);
 
 		if (0 != (flags & FORMAT_GRID)) {
-			int rest = 4 * 22 - (frame.Body.length() - start);
-			frame.Body = frame.Body.append(Arrays.copyOfRange(Slice.toBytes(SPACES88), 0, rest));
+			int rest = 4 * 22 - (this.Body.length() - start);
+			this.Body = this.Body.append(Arrays.copyOfRange(Slice.toBytes(SPACES88), 0, rest));
 		}
 
-		frame.appendAtoms(other);
+		this.appendAtoms(other);
 
 		int defaultTerm = TERM_REDUCED;
-		if (frame.term == TERM_RAW) {
+		if (this.term == TERM_RAW) {
 			defaultTerm = TERM_RAW;
 		}
 
 		if (other.term != defaultTerm || other.count() == 0) {
-			frame.Body = frame.Body.append(TERM_PUNCT[other.term]);
+			this.Body = this.Body.append(TERM_PUNCT[other.term]);
 		}
 
-		if (other.atoms.length > frame.atoms.length) {
-			frame.atoms = copyOfRange(other.atoms, 0, frame.atoms.length);
-			frame.atoms = append(frame.atoms, other.atoms[frame.atoms.length]);
+		if (other.atoms.length > this.atoms.length) {
+			this.atoms = copyOfRange(other.atoms, 0, this.atoms.length);
+			this.atoms = append(this.atoms, other.atoms[this.atoms.length]);
 		} else {
-			frame.atoms = copy(other.atoms);
-			frame.atoms = copyOfRange(frame.atoms, 0, other.atoms.length);
+			this.atoms = copy(other.atoms);
+			this.atoms = copyOfRange(this.atoms, 0, other.atoms.length);
 		}
-		frame.term = other.term;
-		frame.position++;
+		this.term = other.term;
+		this.position++;
 
 	}
 
@@ -264,13 +267,12 @@ public class Frame {
 	}
 
 	public void appendSpec(Frame other) {
-		Frame frame = this;
-		int start = frame.Body.length();
-		long flags = frame.Serializer.Format;
+		int start = this.Body.length();
+		long flags = this.Serializer.Format;
 		int skips = 0;
 //		Atom[] spec = other.atoms[:4];
 		Atom[] spec = copyOfRange(other.atoms, 0 ,4);
-		Atom[] context = copyOfRange(frame.atoms, 0, 4);
+		Atom[] context = copyOfRange(this.atoms, 0, 4);
 
 		boolean do_grid = (flags & FORMAT_GRID) != 0;
 		boolean do_space = (flags & FORMAT_SPACE) != 0;
@@ -284,16 +286,16 @@ public class Frame {
 
 		for (int t = 0; t < k; t++) {
 			if (do_grid) {
-				int rest = t*22 - (frame.Body.length() - start);
-				frame.Body = frame.Body.append(SPACES88.substring(0, rest));
+				int rest = t*22 - (this.Body.length() - start);
+				this.Body = this.Body.append(SPACES88.substring(0, rest));
 			} else if (do_space && t > 0) {
-				frame.Body = frame.Body.append(' ');
+				this.Body = this.Body.append(' ');
 			}
 			if (!do_noskip && spec[t].equals(context[t]) && (other.term == TERM_REDUCED || spec[t].equals(ZERO_UUID_ATOM))) {
 				skips++;
 				continue;
 			}
-			frame.Body = frame.Body.append(SPEC_PUNCT[t]);
+			this.Body = this.Body.append(SPEC_PUNCT[t]);
 			if (t > 0 && do_redef) {
 				int ctxAt = 0;
 				UUID ctxUUID = new UUID(spec[t-1]);
@@ -307,15 +309,15 @@ public class Frame {
 					}
 				}
 				if (ctxAt != t) {
-					frame.Body = frame.Body.append(REDEF_PUNCT[ctxAt]);
+					this.Body = this.Body.append(REDEF_PUNCT[ctxAt]);
 				}
-				frame.appendUUID(new UUID(spec[t]), ctxUUID);
+				this.appendUUID(new UUID(spec[t]), ctxUUID);
 			} else {
-				frame.appendUUID(new UUID(spec[t]), new UUID(context[t]));
+				this.appendUUID(new UUID(spec[t]), new UUID(context[t]));
 			}
 		}
 		if (skips == 4) {
-			frame.Body = frame.Body.append('@');
+			this.Body = this.Body.append('@');
 		}
 	}
 
@@ -480,6 +482,57 @@ public class Frame {
     	Objects.requireNonNull(b);
 		return append(a, new Atom[]{b});
 	}
+
+	public static Frame[] append(Frame[] a, Frame b) {
+		Objects.requireNonNull(a);
+		Objects.requireNonNull(b);
+		return append(a, new Frame[]{b});
+	}
+
+	public static Frame[] append(Frame[] a, Frame[] b) {
+		Frame[] c = new Frame[a.length + b.length];
+//		for (int i = 0;i <= a.length - 1; i++) {
+//			Objects.requireNonNull(a[i]);
+//			c[i] = new Frame(a[i]);
+//		}
+		System.arraycopy(a, 0, c, 0, a.length);
+		for (int j = 0;j <= b.length - 1; j++) {
+			Objects.requireNonNull(b[j]);
+//			c[a.length + j] = b[j].clone();
+			c[a.length + j] = b[j];
+		}
+		return c;
+	}
+
+	public static Frame[] copyOfRange(Frame[] original, int from, int to) {
+//    	if (s > e) {
+//    		throw new IllegalStateException();
+//		}
+//		Atom[] c = new Atom[e - s];
+//		int j = 0;
+//		while (s < e) {
+//			Objects.requireNonNull(a[s]);
+//			c[j] = new Atom(a[s]);
+//			j++;s++;
+//		}
+//		return c;
+//		return Arrays.copyOfRange(a, s ,e);
+
+//		System.out.println(" input: " + Arrays.toString( original) + " " + from + " " + to);
+		int newLength = to - from;
+		if (newLength < 0)
+			throw new IllegalArgumentException(from + " > " + to);
+
+		final int realLength = Math.min(original.length - from, newLength);
+		Frame[] copy = new Frame[realLength];
+//		for (int i = 0; i < realLength; i++) {
+//			copy[i] = new Atom(original[from + i]);
+//		}
+		System.arraycopy(original, from, copy, 0, realLength);
+//		System.out.println("output: " + Arrays.toString( copy) + " " + from + " " + to);
+		return copy;
+	}
+
 
 	public static Atom[] append(Atom[] a, Atom[] b) {
 		Atom[] c = new Atom[a.length + b.length];
@@ -675,5 +728,9 @@ public class Frame {
 //		clone.Body = this.Body[0:l:l];
 		clone.Body = new Slice(Arrays.copyOfRange(this.Body.array(), 0, (int) l));
 		return clone;
+	}
+
+	@Override
+	public String toString() {return this.string();
 	}
 }

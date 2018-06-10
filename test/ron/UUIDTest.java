@@ -24,10 +24,10 @@ public class UUIDTest {
 //				break
 //			}
 			if (!uuid.equals(parsed)) {
-				Assert.fail(String.format("got %s expected %s", parsed.stringValue(), uuid.stringValue()));
+				Assert.fail(String.format("got %s expected %s", parsed.string(), uuid.string()));
 			}
-			if (!parsed.stringValue().equals(uuidStr)) {
-				Assert.fail(String.format("serialized as %s expected %s", parsed.stringValue(), uuidStr));
+			if (!parsed.string().equals(uuidStr)) {
+				Assert.fail(String.format("serialized as %s expected %s", parsed.string(), uuidStr));
 			}
 		}
 

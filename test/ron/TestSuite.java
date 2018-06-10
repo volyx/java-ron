@@ -13,6 +13,7 @@ import org.junit.runners.Suite;
 		VVectorTest.class,
 		UUIDMultiMapTest.class,
 		UUIDHeapTest.class,
+		FrameHeapTest.class,
 })
 public class TestSuite {
 }
