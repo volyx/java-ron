@@ -119,6 +119,10 @@ public class Frame {
 		return this.atoms[i+4];
 	}
 
+	public long integer(int i) {
+		return this.atoms[i+4].integer();
+	}
+
 
 	public UUID type() {
 		return this.UUID(SPEC_TYPE);

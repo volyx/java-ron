@@ -9,6 +9,7 @@ import org.junit.runners.Suite;
 		FrameTest.class,
 		ParseTest.class,
 		UUIDTest.class,
+		OpTest.class,
 		VVectorTest.class,
 		UUIDMultiMapTest.class,
 		UUIDHeapTest.class,
