@@ -87,6 +87,7 @@ public class FrameAppend {
 
 
 	public static int sharedPrefix(UUID uuid, UUID context) {
+		uuid = uuid.clone(); context = context.clone();
 		int vp = Long.numberOfLeadingZeros(uuid.value() ^ context.value());
 		vp -= vp % 6;
 		int op = Long.numberOfLeadingZeros((uuid.origin() ^ context.origin()) & INT60_FULL);
@@ -99,6 +100,7 @@ public class FrameAppend {
 	}
 
 	public static Slice formatUUID(Slice buf, UUID uuid)  {
+		uuid = uuid.clone();
 		int variety = uuid.variety();
 		if (variety != 0) {
 			buf = buf.append(BASE_PUNCT[variety]).append('/');
@@ -112,6 +114,7 @@ public class FrameAppend {
 	}
 
 	public static Slice formatZipUUID(Slice buf, UUID uuid, UUID context) {
+		uuid = uuid.clone(); context = context.clone();
 		if (uuid.variety() != context.variety()) {
 			// don't want to optimize this; a rare case anyway
 			return formatUUID(buf, uuid);

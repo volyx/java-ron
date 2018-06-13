@@ -13,7 +13,8 @@ public class FrameArrayHeap implements IHeap {
 
 	public static IHeap makeFrameHeap(Comparator<Frame> primary, Comparator<Frame> secondary , int size) {
 		FrameArrayHeap ret = new FrameArrayHeap();
-		ret.iters = new Frame[1];
+		// empty frame
+		ret.iters = new Frame[]{new Frame()};
 		ret.primary = primary;
 		ret.secondary = secondary;
 		return ret;
@@ -82,6 +83,7 @@ public class FrameArrayHeap implements IHeap {
 	}
 
 	public void put(Frame i) {
+//		i = i.clone();
 		for (; ; ) {
 			if (!i.eof() && (i.isHeader() || i.isQuery())) {
 				i.next();
@@ -107,7 +109,7 @@ public class FrameArrayHeap implements IHeap {
 
 	public void remove(int i) {
 		this.iters[i] = this.iters[this.iters.length - 1];
-		this.iters = Frame.copyOfRange(this.iters, 0,this.iters.length - 1);
+		this.iters = Frame.slice(this.iters, 0,this.iters.length - 1);
 		this.sink(i);
 	}
 
@@ -187,7 +189,7 @@ public class FrameArrayHeap implements IHeap {
 
 	@Override
 	public void clear() {
-		this.iters = Frame.copyOfRange(iters, 0 ,1);
+		this.iters = Frame.slice(iters, 0 ,1);
 	}
 
 	public static Comparator<Frame> eventComparator() {

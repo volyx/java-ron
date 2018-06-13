@@ -93,9 +93,9 @@ public class Frame {
 		return ret;
 	}
 
-	public Atom[] spec() {
+	public Spec spec() {
 //		var ret [4]Atom
-		return copyOfRange(this.atoms, 0, 4);
+		return new Spec(copy(slice(this.atoms, 0, 4)));
 //		return ret[:]
 	}
 
@@ -152,18 +152,19 @@ public class Frame {
     // Split returns two frames: one from the start to the current pos (exclusive),
     // another from the current pos (incl) to the end. The right one is "stripped".
     public Pair<Frame, Frame> split2() {
+    	Frame frame = this.clone();
         // TODO text vs binary
         Frame left = new Frame();
-		left.Body = new Slice(Arrays.copyOfRange(this.Body.array(), 0, this.Parser.off));
+		left.Body = new Slice(Arrays.copyOfRange(frame.Body.array(), 0, frame.Parser.off));
 		left = ron.Parser.parseFrame(left);
-		Frame right = newBufferFrame(new Slice(new byte[128 + this.Body.length() - this.Parser.pos], 0));
-        right.append(this);
-        right.appendBytes(this.rest());
+		Frame right = newBufferFrame(new Slice(new byte[128 + frame.Body.length() - frame.Parser.pos], 0));
+        right.append(frame);
+        right.appendBytes(frame.rest());
         return Pair.create(left, right);
     }
 
-	public static Atom[] newSpec(UUID t, UUID o, UUID e, UUID l) {
-		return new Atom[] {new Atom(t), new Atom(o), new Atom(e), new Atom(l)};
+	public static Spec newSpec(UUID t, UUID o, UUID e, UUID l) {
+		return new Spec(new Atom[] {new Atom(t), new Atom(o), new Atom(e), new Atom(l)});
 	}
 
 	public void appendAll(Frame i) {
@@ -185,6 +186,7 @@ public class Frame {
 	}
 
 	public void append(Frame other) {
+    	other = other.clone();
 		long flags = this.Serializer.Format;
 		int start = this.Body.length();
 		if (this.Body.length() > 0 && ((0 != (flags & FORMAT_OP_LINES)) || (0 != (flags & FORMAT_FRAME_LINES) && !other.isFramed()))) {
@@ -197,7 +199,7 @@ public class Frame {
 		}
 
 		if (this.atoms.length == 0) {
-			this.atoms = copyOfRange(this._atoms, 0, 4);
+			this.atoms = slice(this._atoms, 0, 4);
 		}
 		this.appendSpec(other);
 
@@ -218,11 +220,11 @@ public class Frame {
 		}
 
 		if (other.atoms.length > this.atoms.length) {
-			this.atoms = copyOfRange(other.atoms, 0, this.atoms.length);
+			this.atoms = copy(slice(other.atoms, 0, this.atoms.length));
 			this.atoms = append(this.atoms, other.atoms[this.atoms.length]);
 		} else {
 			this.atoms = copy(other.atoms);
-			this.atoms = copyOfRange(this.atoms, 0, other.atoms.length);
+			this.atoms = slice(this.atoms, 0, other.atoms.length);
 		}
 		this.term = other.term;
 		this.position++;
@@ -261,12 +263,20 @@ public class Frame {
 		return this.term() == TERM_QUERY;
 	}
 
+	public boolean isComment() {
+		return this.type().equals(COMMENT_UUID);
+	}
+
 	public boolean isEmpty() {
 		return this.Body.length() == 0;
 	}
 
 	public boolean isFramed() {
 		return this.term() == TERM_REDUCED;
+	}
+
+	public boolean isRaw() {
+		return this.term() == TERM_RAW;
 	}
 
 	public boolean isFullState() {
@@ -278,12 +288,13 @@ public class Frame {
 	}
 
 	public void appendSpec(Frame other) {
+    	other = other.clone();
 		int start = this.Body.length();
 		long flags = this.Serializer.Format;
 		int skips = 0;
 //		Atom[] spec = other.atoms[:4];
-		Atom[] spec = copyOfRange(other.atoms, 0 ,4);
-		Atom[] context = copyOfRange(this.atoms, 0, 4);
+		Atom[] spec = slice(other.atoms, 0 ,4);
+		Atom[] context = slice(this.atoms, 0, 4);
 
 		boolean do_grid = (flags & FORMAT_GRID) != 0;
 		boolean do_space = (flags & FORMAT_SPACE) != 0;
@@ -333,34 +344,34 @@ public class Frame {
 	}
 
 	public void appendAtoms(Frame other) {
-		Frame frame = this;
+    	other = other.clone();
 		for (int i = 4; i < other.atoms.length; i++) {
 			Atom a = other.atoms[i];
 			Objects.requireNonNull(a);
 			switch (a.type()) {
 				case ATOM_INT:
 				{
-					frame.Body = frame.Body.append(ATOM_INT_SEP);
-					frame.Body = frame.Body.append(a.integer());
+					this.Body = this.Body.append(ATOM_INT_SEP);
+					this.Body = this.Body.append(a.integer());
 					break;
 				}
 				case ATOM_STRING:
 				{
-					frame.Body = frame.Body.append(ATOM_STRING_SEP);
-					frame.Body = frame.Body.append(other.escString(i-4));
-					frame.Body = frame.Body.append(ATOM_STRING_SEP);
+					this.Body = this.Body.append(ATOM_STRING_SEP);
+					this.Body = this.Body.append(other.escString(i-4));
+					this.Body = this.Body.append(ATOM_STRING_SEP);
 					break;
 				}
 				case ATOM_FLOAT:
 				{
-					frame.Body = frame.Body.append(ATOM_FLOAT_SEP);
-					frame.appendFloat(a);
+					this.Body = this.Body.append(ATOM_FLOAT_SEP);
+					this.appendFloat(a);
 					break;
 				}
 				case ATOM_UUID:
 				{
-					frame.Body = frame.Body.append(ATOM_UUID_SEP);
-					frame.appendUUID(new UUID(a), ZERO_UUID); // TODO defaults
+					this.Body = this.Body.append(ATOM_UUID_SEP);
+					this.appendUUID(new UUID(a), ZERO_UUID); // TODO defaults
 					break;
 				}
 				default: throw new RuntimeException(a.type() + "");
@@ -370,6 +381,7 @@ public class Frame {
 
 
 	public void appendFloat(Atom a) {
+    	a = a.clone();
     	Frame frame = this;
 		if (a.uuid[0] == 0) {
 			frame.Body = frame.Body.append( "0.0");
@@ -424,16 +436,24 @@ public class Frame {
 	}
 
 	public void appendUUID(UUID uuid, UUID context) {
-
+    	uuid = uuid.clone(); context = context.clone();
 		if (0 != (this.Serializer.Format & FORMAT_UNZIP)) {
 			this.Body = formatUUID(this.Body, uuid);
-		} else if (uuid != context) {
+		} else if (!uuid.equals(context)) {
 			this.Body = formatZipUUID(this.Body, uuid, context);
 		}
 	}
 
 	public byte[] escString(int idx) {
 		return this.atoms[idx+4].escString(this.Body);
+	}
+
+	public String rawString(int idx) {
+		Atom atom = this.atoms[idx+4];
+		if (atom.Type() != ATOM_STRING) {
+			return "";
+		}
+		return atom.rawString(this.Body.array());
 	}
 
 //	public static <T> T[] append(T[] a, T[] b) {
@@ -443,14 +463,15 @@ public class Frame {
 //		return (T[]) c;
 //	}
 
-	public void appendSpecValuesTerm(Atom[] spec, Atom[] values, int term) {
+	public void appendSpecValuesTerm(Spec spec, Atom[] values, int term) {
+    	spec = spec.clone();
 		Atom[] atoms = new Atom[values.length + 4 + 1];
-		for (int i = 0; i < spec.length; i++) {
-			atoms[i] = spec[i];
+		for (int i = 0; i < spec.spec.length; i++) {
+			atoms[i] = spec.spec[i];
 		}
 		int j = 0;
-		for (int i = spec.length; i < spec.length + values.length; i++) {
-			atoms[i] = spec[j++];
+		for (int i = spec.spec.length; i < spec.spec.length + values.length; i++) {
+			atoms[i] = spec.spec[j++];
 		}
 //		atoms = append(atoms, spec...)
 //		atoms = append(atoms, values...)
@@ -458,20 +479,41 @@ public class Frame {
 		this.append(tmp);
 	}
 
-	public void appendEmpty(Atom[] spec, int term) {
+	public void appendEmpty(Spec spec, int term) {
+		spec = spec.clone();
 //		Atom[] atoms = new Atom[6];
-		Atom[] atoms = new Atom[4];
-//		atoms = append(atoms, spec[0:4]...)
-		System.arraycopy(spec, 0, atoms, 0, 4);
+//		Atom[] atoms = new Atom[6];
+		Atom[] atoms = copy(slice(spec.spec, 0, 4));
+//		atoms = copy(spec);
+//		spec.spec =
+//		System.arraycopy(spec.spec, 0, atoms, 0, 4);
 		Frame tmp = new Frame(atoms, term);
 		this.append(tmp);
 	}
 
 	public void appendReduced(Frame other) {
+		other = other.clone();
 		var tmpTerm = other.term;
 		other.term = TERM_REDUCED;
 		this.append(other);
 		other.term = tmpTerm;
+	}
+
+	public void appendEmptyReducedOp(Spec spec) {
+    	spec = spec.clone();
+		this.appendEmpty(spec, TERM_REDUCED);
+	}
+
+	public void appendReducedRef(UUID ref, Frame other) {
+    	ref = ref.clone();
+    	other = other.clone();
+		Atom tmpRef = other.atoms[SPEC_REF];
+		int tmpTerm = other.term;
+		other.atoms[SPEC_REF] = new Atom(ref);
+		other.term = TERM_REDUCED;
+		this.append(other);
+		other.atoms[SPEC_REF] = tmpRef;
+		other.term =  tmpTerm;
 	}
 
 //	func (frame *Frame) AppendReducedOpInt(spec Spec, value int64) {
@@ -486,12 +528,13 @@ public class Frame {
 //		frame.AppendEmpty(spec, TERM_HEADER)
 //	}
 
-	public void appendStateHeader(Atom[] spec) {
+	public void appendStateHeader(Spec spec) {
+		spec = spec.clone();
 		appendEmpty(spec, TERM_HEADER);
 	}
 
 	public void appendStateHeaderValues(UUID rdt, UUID obj, UUID ev, UUID ref, Atom[] values) {
-		Atom[] spec = newSpec(rdt, obj, ev, ref);
+		Spec spec = newSpec(rdt, obj, ev, ref);
 		this.appendSpecValuesTerm(spec, values, TERM_HEADER);
 	}
 
@@ -501,6 +544,27 @@ public class Frame {
 		return append(a, new Atom[]{b});
 	}
 
+	public static UUID[] append(UUID[] a, UUID b) {
+    	Objects.requireNonNull(a);
+    	Objects.requireNonNull(b);
+		return append(a, new UUID[]{b});
+	}
+
+
+	public static UUID[] append(UUID[] a, UUID[] b) {
+		UUID[] c = new UUID[a.length + b.length];
+		for (int i = 0;i <= a.length - 1; i++) {
+			Objects.requireNonNull(a[i]);
+			c[i] = a[i];
+		}
+		for (int j = 0;j <= b.length - 1; j++) {
+			Objects.requireNonNull(b[j]);
+			c[a.length + j] = b[j];
+		}
+		return c;
+	}
+
+
 	public static Frame[] append(Frame[] a, Frame b) {
 		Objects.requireNonNull(a);
 		Objects.requireNonNull(b);
@@ -509,58 +573,28 @@ public class Frame {
 
 	public static Frame[] append(Frame[] a, Frame[] b) {
 		Frame[] c = new Frame[a.length + b.length];
-//		for (int i = 0;i <= a.length - 1; i++) {
-//			Objects.requireNonNull(a[i]);
-//			c[i] = new Frame(a[i]);
-//		}
-		System.arraycopy(a, 0, c, 0, a.length);
+		for (int i = 0;i <= a.length - 1; i++) {
+			Objects.requireNonNull(a[i]);
+			c[i] = a[i];
+		}
 		for (int j = 0;j <= b.length - 1; j++) {
 			Objects.requireNonNull(b[j]);
-//			c[a.length + j] = b[j].clone();
 			c[a.length + j] = b[j];
 		}
 		return c;
 	}
 
-	public static Frame[] copyOfRange(Frame[] original, int from, int to) {
-//    	if (s > e) {
-//    		throw new IllegalStateException();
-//		}
-//		Atom[] c = new Atom[e - s];
-//		int j = 0;
-//		while (s < e) {
-//			Objects.requireNonNull(a[s]);
-//			c[j] = new Atom(a[s]);
-//			j++;s++;
-//		}
-//		return c;
-//		return Arrays.copyOfRange(a, s ,e);
-
-//		System.out.println(" input: " + Arrays.toString( original) + " " + from + " " + to);
-		int newLength = to - from;
-		if (newLength < 0)
-			throw new IllegalArgumentException(from + " > " + to);
-
-		final int realLength = Math.min(original.length - from, newLength);
-		Frame[] copy = new Frame[realLength];
-//		for (int i = 0; i < realLength; i++) {
-//			copy[i] = new Atom(original[from + i]);
-//		}
-		System.arraycopy(original, from, copy, 0, realLength);
-//		System.out.println("output: " + Arrays.toString( copy) + " " + from + " " + to);
-		return copy;
-	}
-
-
 	public static Atom[] append(Atom[] a, Atom[] b) {
 		Atom[] c = new Atom[a.length + b.length];
 		for (int i = 0;i <= a.length - 1; i++) {
 			Objects.requireNonNull(a[i]);
-			c[i] = new Atom(a[i]);
+//			c[i] = new Atom(a[i]);
+			c[i] = a[i];
 		}
 		for (int j = 0;j <= b.length - 1; j++) {
 			Objects.requireNonNull(b[j]);
-			c[a.length + j] = new Atom(b[j]);
+//			c[a.length + j] = new Atom(b[j]);
+			c[a.length + j] = b[j];
 		}
 		return c;
 	}
@@ -569,51 +603,50 @@ public class Frame {
 		Atom[] a = new Atom[b.length];
 		for (int i = 0;i <= b.length - 1; i++) {
 			Objects.requireNonNull(b[i]);
-			a[i] = new Atom(b[i]);
+			a[i] = b[i].clone();
 		}
 		return a;
 	}
 
-	public static Atom[] copyOfRange(Atom[] original, int from, int to) {
-//    	if (s > e) {
-//    		throw new IllegalStateException();
-//		}
-//		Atom[] c = new Atom[e - s];
-//		int j = 0;
-//		while (s < e) {
-//			Objects.requireNonNull(a[s]);
-//			c[j] = new Atom(a[s]);
-//			j++;s++;
-//		}
-//		return c;
-//		return Arrays.copyOfRange(a, s ,e);
-
-//		System.out.println(" input: " + Arrays.toString( original) + " " + from + " " + to);
-		int newLength = to - from;
-		if (newLength < 0)
-			throw new IllegalArgumentException(from + " > " + to);
-
-		final int realLength = Math.min(original.length - from, newLength);
-		Atom[] copy = new Atom[realLength];
-//		for (int i = 0; i < realLength; i++) {
-//			copy[i] = new Atom(original[from + i]);
-//		}
-		System.arraycopy(original, from, copy, 0, realLength);
-//		System.out.println("output: " + Arrays.toString( copy) + " " + from + " " + to);
-		return copy;
+	public static Frame[] copy(Frame[] b) {
+		Frame[] a = new Frame[b.length];
+		for (int i = 0;i <= b.length - 1; i++) {
+			Objects.requireNonNull(b[i]);
+			a[i] = b[i].clone();
+		}
+		return a;
 	}
 
-//	func (frame *Frame) Next() bool {
-//		frame.Parse()
-//		if frame.Parser.state == RON_error {
-//			return false
-//		}
-//		if frame.Parser.streaming {
-//			return frame.IsComplete()
-//		}
-//		return true
-//	}
+	public static Atom[] slice(Atom[] original, int from, int to) {
+		if (from > to) {
+			throw new IllegalStateException();
+		}
+		Atom[] c = new Atom[to - from];
+		int j = 0;
+		while (from < to) {
+			Objects.requireNonNull(original[from]);
+//			c[j] = new Atom(original[from]);
+			c[j] = original[from];
+			from++;
+			j++;
+		}
+		return c;
+	}
 
+	public static Frame[] slice(Frame[] original, int from, int to) {
+		if (from > to) {
+			throw new IllegalStateException();
+		}
+		Frame[] c = new Frame[to - from];
+		int j = 0;
+		while (from < to) {
+//			Objects.requireNonNull(original[from]);
+			c[j] = original[from];
+			from++;
+			j++;
+		}
+		return c;
+	}
 
 	public boolean next() {
         ron.Parser.parseFrame(this);
@@ -627,7 +660,8 @@ public class Frame {
     }
 
 	public Frame rewind() {
-		return Parse.parseFrame(this.Body);
+    	Frame frame = this.clone();
+		return Parse.parseFrame(frame.Body);
 	}
 
 	public Frame reformat(long format) {
@@ -678,7 +712,7 @@ public class Frame {
 	public boolean compareAll(Frame other)  {
     	int op = 0; int at = 0;
 		boolean eq = false;
-		for (;!eof() && !other.eof();) {
+		for (;!this.eof() && !other.eof();) {
 			eq = this.compare(other);
 			if (!eq) {
 				return eq;
@@ -692,6 +726,10 @@ public class Frame {
 			return eq;
 		}
 		return eq;
+	}
+
+	public String getString(int i) {
+		return this.rawString(i);
 	}
 
 	@Override
@@ -712,20 +750,21 @@ public class Frame {
 // hence, we don't care about performance that much
 // still, may consider explicit-length formats at some point
 	public Batch split() {
+    	Frame frame = this.clone();
 		Batch ret = new Batch();
 		int i = 0;
-		for (;!eof();) {
+		for (;!frame.eof();) {
 			Frame next = newFrame();
-//			System.out.println(i++ + " 1 " + next.string() + Arrays.asList(next.atoms)+ "\n" + Arrays.asList(this.atoms));
-			next.append(this);
-//			System.out.println(i++ + " 2 " + next.string() + Arrays.asList(next.atoms)+ "\n" + Arrays.asList(this.atoms));
-			this.next();
-//			System.out.println(i++ + " 3 " + next.string() + Arrays.asList(next.atoms)+ "\n" + Arrays.asList(this.atoms));
-			for (;!eof() && this.term() == TERM_REDUCED;) {
-//				System.out.println(i++ + " 4 " + next.string() + Arrays.asList(next.atoms)+ "\n" + Arrays.asList(this.atoms));
-				next.append(this);
+			// System.out.println(i++ + " 1 " + next.string() + "\n" + Arrays.asList(frame._atoms));
+			next.append(frame);
+			// System.out.println(i++ + " 2 " + next.string() + "\n" + Arrays.asList(frame._atoms));
+			frame.next();
+			// System.out.println(i++ + " 3 " + next.string()+ "\n" + Arrays.asList(frame._atoms));
+			for (;!frame.eof() && frame.term() == TERM_REDUCED;) {
+				// System.out.println(i++ + " 4 " + next.string() + "\n" + Arrays.asList(frame._atoms));
+				next.append(frame);
 //				System.out.println(i++ + " 5 " + next.string() + Arrays.asList(next.atoms)+ "\n" + Arrays.asList(this.atoms));
-				this.next();
+				frame.next();
 //				System.out.println(i++ + " 6 " + next.string() + Arrays.asList(next.atoms) + "\n" + Arrays.asList(this.atoms));
 			}
 			ret = ret.append(next.rewind());
@@ -737,14 +776,15 @@ public class Frame {
 		Frame clone = new Frame();
 		clone.Parser = new ParserState(this.Parser);
 		clone.Serializer = new SerializeState(this.Serializer);
-		clone.atoms = new Atom[this.atoms.length];
 		clone.term = this.term;
 		clone.binary = this.binary;
+		clone._atoms = copy(this._atoms);
 		clone.atoms = copy(this.atoms);
-		long l = this.Body.length();
+		clone.position = this.position;
+		int l = this.Body.length();
 		// prevent from appending to the same buffer
 //		clone.Body = this.Body[0:l:l];
-		clone.Body = new Slice(Arrays.copyOfRange(this.Body.array(), 0, (int) l));
+		clone.Body = new Slice(Arrays.copyOfRange(this.Body.array(), 0, this.Body.array().length), l);
 		return clone;
 	}
 

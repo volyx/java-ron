@@ -39,7 +39,7 @@ public class Convert {
 				final long i = scanner.nextLong();
 				byte[] out = new byte[12];
 				Slice bi = FrameAppend.formatInt(new Slice(out), i);
-				System.out.println(new String(bi.array(), StandardCharsets.UTF_8));
+				// System.out.println(new String(bi.array(), StandardCharsets.UTF_8));
 			}
 		}
 	}
@@ -70,10 +70,10 @@ public class Convert {
 
 			switch (to) {
 				case "int":
-					System.out.println(String.format("%s %s", Long.toUnsignedString(uuid.uuid[0]), Long.toUnsignedString(uuid.uuid[1])));
+					// System.out.println(String.format("%s %s", Long.toUnsignedString(uuid.uuid[0]), Long.toUnsignedString(uuid.uuid[1])));
 					break;
 				case "int4":
-					System.out.println(String.format("%d %d %d %d",  uuid.variety(), uuid.value(), uuid.scheme(), uuid.origin()));
+					// System.out.println(String.format("%d %d %d %d",  uuid.variety(), uuid.value(), uuid.scheme(), uuid.origin()));
 					break;
 				default:
 					throw new RuntimeException("convert to what?");

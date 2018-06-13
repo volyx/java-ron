@@ -1,0 +1,5 @@
+*~ 'a state plus an op'?
+		*rga#test@1!@'A'
+		*rga#test@2:1'B';
+*~ 'a merged state'!
+		*rga#test@2!@1'A'@2'B'

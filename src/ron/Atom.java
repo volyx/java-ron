@@ -25,6 +25,10 @@ public class Atom extends UUID {
 		super(uuid);
 	}
 
+	public Atom clone() {
+		return new Atom(this);
+	}
+
 	public static Atom NewAtom() {
 		return new Atom(0L, 0L);
 	}
@@ -32,17 +36,20 @@ public class Atom extends UUID {
 	public UUID UUID() {
 		return new UUID(this);
 	}
-
+	// a[half] |= uint64(value) << DIGIT_OFFSETS[dgt] /
 	public void set6(int half, int dgt, long value) {
-		uuid[half] |= value << DIGIT_OFFSETS[dgt]; // FIXME reverse numbering
+		uuid[half] = uuid[half]  | (value << DIGIT_OFFSETS[dgt]); // FIXME reverse numbering
+		// System.out.println("set6 " + uuid[half] + " half " + half);
 	}
 
 	public void set2(int half, long idx, long value) {
 		uuid[half] |= value << (idx << 1);
+		// System.out.println("set2 " + uuid[half] + " half " + half);
 	}
 
 	public void trim6(int half, int dgt) {
 		uuid[half] &= INT60_FLAGS | PREFIX_MASKS[dgt];
+		// System.out.println("trim6 " + uuid[half] + " half " + half);
 	}
 
 	public long get6(int half, int dgt) {
@@ -51,26 +58,27 @@ public class Atom extends UUID {
 
 	public void init64(int half, long flags) {
 		uuid[half] = flags << 60;
+		// System.out.println("init64 " + uuid[half]+ " half " + half );
 	}
 
-//	func (a *Atom) reset4(half Half, idx uint, value uint8) {
-//		a[half] &^= 15 << (idx << 2)
-//		a[half] |= uint64(value) << (idx << 2)
-//	}
 
 	public void reset4(int half, long idx, long value) {
 		uuid[half] &= uuid[half] ^ (15L << (idx << 2));
 //		uuid[half] = value << 60;
 		uuid[half] |= value << (idx << 2);
+		// System.out.println("reset4 " + uuid[half] + " half " + half);
 	}
 
-	public void arab64(int idx, long value) {
-		uuid[idx] *= 10;
-		uuid[idx] += value;
+	public void arab64(int half, long value) {
+		uuid[half] *= 10;
+		uuid[half] += value;
+		// System.out.println("arab64 " + uuid[half]+ " half " + half);
 	}
 
 	public void set1(int half, int idx) {
-		uuid[half] |= 1L << idx;
+		uuid[half] = uuid[half] | (1L << idx);
+				// System.out.println("set1 " + uuid[half]+ " half " + half);
+
 	}
 
 	public void inc16(int half, long idx) {
@@ -79,6 +87,8 @@ public class Atom extends UUID {
 		i++;
 		uuid[half] &= uuid[half] ^ (INT16_FULL << shift);
 		uuid[half] |= (i & INT16_FULL) << shift;
+				// System.out.println("inc16 " + uuid[half]+ " half " + half);
+
 	}
 
 	public void arab16(int half, long value) {
@@ -87,10 +97,12 @@ public class Atom extends UUID {
 		i += value;
 		uuid[half] &= uuid[half] ^ INT16_FULL;
 		uuid[half] |= i & INT16_FULL;
+		// System.out.println("arab16 " + uuid[half]+ " half " + half);
 	}
 
 	public void set32(int half, int idx, long value) {
 		uuid[half] |= value << (idx << 5);
+		// System.out.println("set32 " + uuid[half]+ " half " + half);
 	}
 
 	public void setOrigin(long origin) {
@@ -102,7 +114,7 @@ public class Atom extends UUID {
 	}
 
 	public long integer() {
-		int neg = (int) (uuid[1] & (1 << 60));
+		int neg = (int) (uuid[1] & (1L << 60));
 		long ret = uuid[0];
 		if (neg == 0) {
 			return ret;
@@ -141,4 +153,23 @@ public class Atom extends UUID {
 		// FIXME check if binary;
 		return Arrays.copyOfRange(body.array(), from, till);
 	}
+
+	public String rawString(byte[] body) {
+		long from = uuid[0] >>> 32;
+		long till = uuid[0] & INT32_FULL;
+		// FIXME check if binary
+		return new String(unesc(Arrays.copyOfRange(body, (int )from, (int)till)));
+	}
+
+	// add JSON escapes
+	public byte[] esc(byte[] str) {
+		return str;
+	}
+
+	// remove JSON escapes
+	public byte[] unesc(byte[] str) {
+		// TODO
+		return str;
+	}
+
 }

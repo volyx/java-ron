@@ -1,18 +1,18 @@
 package ron;
 
 
-import java.util.Arrays;
-import java.util.Objects;
-
 public class Batch {
 	public Frame[] frames = new Frame[0];
 	public Batch(){}
-	public Batch(Frame frame) {
-		this.frames = new Frame[] {frame};
-	}
+
 	public Batch(Frame[] frames) {
+//		this.frames = Frame.copy(frames);
 		this.frames = frames;
 	}
+	public Batch(Frame frame) {
+		this(new Frame[] {frame});
+	}
+
 
 	public Batch append(Frame frame) {
 		Frame[] frames = new Frame[this.frames.length + 1];
@@ -36,20 +36,22 @@ public class Batch {
 //	}
 
 	public Frame join() {
+		Batch batch = this.clone();
 		int size = 0;
-		for (Frame f : frames) {
+		for (Frame f : batch.frames) {
 			size += f.Body.length();
 		}
 		Frame ret = Frame.makeFrame(size);
-		for (Frame f : frames) {
+		for (Frame f : batch.frames) {
 			ret.appendFrame(f);
 		}
 		return ret.rewind();
 	}
 
 	public String string() {
+		Batch batch = this.clone();
 		String ret = "";
-		for (Frame frame : frames) {
+		for (Frame frame : batch.frames) {
 			ret += frame.string() + "\n";
 		}
 		return ret;
@@ -94,11 +96,20 @@ public class Batch {
 		return false;
 
 	}
+
+	public Batch clone() {
+		return new Batch(Frame.copy(this.frames));
+	}
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		Batch other = (Batch) o;
 		return this.compare(other);
+	}
+
+	@Override
+	public String toString() {
+		return string();
 	}
 }

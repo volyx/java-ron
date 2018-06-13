@@ -1,7 +1,5 @@
 package ron;
 
-import java.util.Comparator;
-
 public interface IHeap {
 
 	void putFrame(Frame frame);

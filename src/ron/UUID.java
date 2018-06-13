@@ -39,6 +39,10 @@ public class UUID implements Comparable<UUID> {
 		this.uuid[1] = a.uuid[1];
 	}
 
+	public UUID clone() {
+		return new UUID(this);
+	}
+
 	public long value() {
 		return uuid[0] & INT60_FULL;
 	}
@@ -65,7 +69,7 @@ public class UUID implements Comparable<UUID> {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+//		if (o == null || getClass() != o.getClass()) return false;
 		UUID uuid1 = (UUID) o;
 		return Arrays.equals(uuid, uuid1.uuid);
 	}

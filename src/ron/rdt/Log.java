@@ -22,7 +22,7 @@ public class Log implements Reducer {
 	@Override
 	public ron.Frame reduce(Batch batch)  {
 		this.heap.putAll(batch);
-		Atom[] spec = Frame.newSpec(
+		Spec spec = Frame.newSpec(
 				batch.frames[0].type(),
 				batch.frames[0].object(),
 				batch.frames[batch.frames.length - 1].event(),

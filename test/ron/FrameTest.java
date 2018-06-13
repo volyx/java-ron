@@ -37,7 +37,7 @@ public class FrameTest {
 	@Test
 	public void TestFrame_Split() {
 		Frame frame = Parse.parseFrameString("*lww#id1!:val=1*#id2:0!:val=2");
-		System.out.println(frame.Parser);
+		// System.out.println(frame.Parser);
 
 		String h1 = "*lww#id1!:val=1";
 		String h2 = "*lww#id2!:val=2";
@@ -62,7 +62,7 @@ public class FrameTest {
 
 	@Test
 	public void TestFrame_SplitMultiframe() {
-		System.out.println("TestFrame_SplitMultiframe java");
+		// System.out.println("TestFrame_SplitMultiframe java");
 		String multiStr = "*lww#test!:a=1*#best:0!:b=2:c=3*#:d=4;";
 		String[] splits = new String[] {
 					"*lww#test!:a=1",
@@ -128,6 +128,27 @@ public class FrameTest {
 		if (next.term() != TERM_HEADER) {
 			Assert.fail("incorrect term");
 		}
+	}
+
+	/**
+	 * Result in Java
+	 *
+	 * *rga#test@2:1'B'
+	 * *rga#test@2!@1:1'A'@2'B'
+	 *
+	 * Result in Go
+	 *
+	 * *rga#test@2:1'B'
+	 * *rga#test@2!@1'A'@2'B'
+	 */
+
+	@Test
+	public void testFr() {
+		Frame f = Parse.parseFrameString(
+				"*rga#test@2:1'B';" +
+				"*rga#test@2!@1'A'@2'B'");
+
+		// System.out.println(f.split());
 	}
 
 

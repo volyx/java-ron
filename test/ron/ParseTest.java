@@ -121,7 +121,7 @@ public class ParseTest {
 		String defstr = "0123456789-abcdefghi";
 		UUID def = Parse.parseUUIDString(defstr);
 		for (int i = 0; i < test32.length; i++) {
-			System.out.println(i);
+			// System.out.println(i);
 			String zipped = test32[i][0];
 			UUID unzipped;
 			try {
@@ -168,7 +168,7 @@ public class ParseTest {
 //		ProcessHandle.current().pid();
 //		pid := os.Getpid()
 		long pid = rand.nextLong();
-		System.out.printf("random seed %d", pid);
+		// System.out.printf("random seed %d", pid);
 
 		rand.setSeed(pid);
 		String defstr = "0123456789-abcdefghi";

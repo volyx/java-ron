@@ -345,7 +345,7 @@ private static Atom[] append(Atom[] arr, Atom element) {
 // line 41 "ragel/java-parser.rl"
                      frame.position = -1;
                      // frame.atoms = frame._atoms[:4]
-                     frame.atoms = Frame.copyOfRange(frame._atoms, 0, 4);
+                     frame.atoms = Frame.slice(frame._atoms, 0, 4);
                      break;
                  case RON_FULL_STOP:
                      ps.state = RON_error;
@@ -354,7 +354,7 @@ private static Atom[] append(Atom[] arr, Atom element) {
                  case RON_start:
                      ps.off = ps.pos;
                      // frame.atoms = frame._atoms[:4];
-                     frame.atoms = Frame.copyOfRange(frame._atoms, 0, 4);
+                     frame.atoms = Frame.slice(frame._atoms, 0, 4);
                      ps.atm = 0; ps.hlf = 0; ps.dgt = 0;
                      break;
              }

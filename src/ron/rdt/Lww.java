@@ -26,8 +26,7 @@ public class Lww implements Reducer {
 	@Override
 	public Frame reduce(Batch inputs) {
 		IHeap heap = FrameArrayHeap.makeFrameHeap(FrameArrayHeap.refComparator(), FrameArrayHeap.eventComparatorDesc(), inputs.frames.length);
-		Spec spec = new Spec();
-		spec.spec = inputs.frames[0].spec();
+		Spec spec = inputs.frames[0].spec();
 		spec.setEvent(inputs.frames[inputs.frames.length - 1].event());
 		if (inputs.hasFullState()) {
 			spec.setRef(ZERO_UUID);
@@ -38,7 +37,7 @@ public class Lww implements Reducer {
 			heap.putFrame(inputs.frames[k]);
 		}
 		Frame res = new Frame();
-		res.appendStateHeader(spec.spec);
+		res.appendStateHeader(spec);
 		for (;!heap.eof();) {
 			res.appendReduced(heap.current());
 			heap.nextPrim();

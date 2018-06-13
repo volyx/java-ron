@@ -35,7 +35,10 @@ public class Slice {
 
 	public Slice append(byte[] b) {
 		byte[] c = new byte[length() + b.length];
-		System.arraycopy(this.buf, 0, c, 0, this.offset);
+		for (int i = 0; i < this.offset; i++) {
+			c[i] = this.buf[i];
+		}
+//		System.arraycopy(this.buf, 0, c, 0, this.offset);
 		System.arraycopy(b, 0, c, this.offset, b.length);
 		this.buf = c;
 		this.offset += b.length;
