@@ -2,8 +2,7 @@ package ron;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import ron.rdt.Log;
-import ron.rdt.Lww;
+import ron.rdt.*;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -18,6 +17,10 @@ import ron.rdt.Lww;
 		FrameHeapTest.class,
 		LogTest.class,
 		LwwTest.class,
+		RgaTest.class,
+		CausalSetTest.class,
+		SetTest.class,
+		VVTest.class,
 })
 public class TestSuite {
 }

@@ -40,11 +40,12 @@ public class Atom extends UUID {
 	public void set6(int half, int dgt, long value) {
 		uuid[half] = uuid[half]  | (value << DIGIT_OFFSETS[dgt]); // FIXME reverse numbering
 		// System.out.println("set6 " + uuid[half] + " half " + half);
+
 	}
 
-	public void set2(int half, long idx, long value) {
+	public void set2(int half, int idx, long value) {
 		uuid[half] |= value << (idx << 1);
-		// System.out.println("set2 " + uuid[half] + " half " + half);
+		// System.out.println("set2 " + Long.toUnsignedString(uuid[half]) + " half " + half);
 	}
 
 	public void trim6(int half, int dgt) {

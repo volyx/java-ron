@@ -59,13 +59,6 @@ public class Frame {
         this.term = term;
 	}
 
-//	func OpenFrame(data []byte) Frame {
-//		frame := Frame{}
-//		frame.Body = data
-//		frame.Parse()
-//		return frame
-//	}
-
     public static Frame openFrame(Slice data) {
         Frame frame = new Frame();
         frame.Body = data;
@@ -541,6 +534,7 @@ public class Frame {
 	public static Atom[] append(Atom[] a, Atom b) {
     	Objects.requireNonNull(a);
     	Objects.requireNonNull(b);
+//		System.out.println("append");
 		return append(a, new Atom[]{b});
 	}
 
@@ -585,6 +579,7 @@ public class Frame {
 	}
 
 	public static Atom[] append(Atom[] a, Atom[] b) {
+//		System.out.println("input " + Arrays.toString(a) + " " + Arrays.toString(b));
 		Atom[] c = new Atom[a.length + b.length];
 		for (int i = 0;i <= a.length - 1; i++) {
 			Objects.requireNonNull(a[i]);
@@ -596,6 +591,8 @@ public class Frame {
 //			c[a.length + j] = new Atom(b[j]);
 			c[a.length + j] = b[j];
 		}
+
+//		System.out.println("output " + Arrays.toString(c));
 		return c;
 	}
 
@@ -755,13 +752,13 @@ public class Frame {
 		int i = 0;
 		for (;!frame.eof();) {
 			Frame next = newFrame();
-			// System.out.println(i++ + " 1 " + next.string() + "\n" + Arrays.asList(frame._atoms));
+//			 System.out.println(i++ + " 1 " + next.string() + "\n" + Arrays.asList(frame._atoms));
 			next.append(frame);
-			// System.out.println(i++ + " 2 " + next.string() + "\n" + Arrays.asList(frame._atoms));
+//			 System.out.println(i++ + " 2 " + next.string() + "\n" + Arrays.asList(frame._atoms));
 			frame.next();
-			// System.out.println(i++ + " 3 " + next.string()+ "\n" + Arrays.asList(frame._atoms));
+//			 System.out.println(i++ + " 3 " + next.string()+ "\n" + Arrays.asList(frame._atoms));
 			for (;!frame.eof() && frame.term() == TERM_REDUCED;) {
-				// System.out.println(i++ + " 4 " + next.string() + "\n" + Arrays.asList(frame._atoms));
+//				 System.out.println(i++ + " 4 " + next.string() + "\n" + Arrays.asList(frame._atoms));
 				next.append(frame);
 //				System.out.println(i++ + " 5 " + next.string() + Arrays.asList(next.atoms)+ "\n" + Arrays.asList(this.atoms));
 				frame.next();
@@ -786,6 +783,18 @@ public class Frame {
 //		clone.Body = this.Body[0:l:l];
 		clone.Body = new Slice(Arrays.copyOfRange(this.Body.array(), 0, this.Body.array().length), l);
 		return clone;
+	}
+
+	public long origin() {
+		return this.atoms[SPEC_EVENT].uuid[1];
+	}
+
+	public long time() {
+    	return this.atoms[SPEC_EVENT].uuid[0];
+	}
+
+	public Atom[] atoms() {
+		return slice(this.atoms, 0, this.atoms.length);
 	}
 
 	@Override

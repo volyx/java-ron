@@ -10,7 +10,7 @@ public class UUIDHeapTest {
 
 	@Test
 	public void TestUHeap_TakeUUID() {
-		UUIDHeap h = new UUIDHeap();
+		UUIDHeap h = new UUIDHeapImpl();
 		h.put(ZERO_UUID);
 		h.put(ZERO_UUID);
 		h.put(NEVER_UUID);

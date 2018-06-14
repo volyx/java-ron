@@ -3,6 +3,8 @@ package ron;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static ron.Const.TERM_HEADER;
 import static ron.UUID.COMMENT_UUID;
 
@@ -148,7 +150,9 @@ public class FrameTest {
 				"*rga#test@2:1'B';" +
 				"*rga#test@2!@1'A'@2'B'");
 
-		// System.out.println(f.split());
+//		System.out.println(f.string() + "\n" + Arrays.asList(f._atoms));
+
+		 System.out.println(f.split());
 	}
 
 

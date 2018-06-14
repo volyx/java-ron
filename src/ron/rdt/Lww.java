@@ -17,7 +17,7 @@ import static ron.UUID.ZERO_UUID;
 public class Lww implements Reducer {
 
 	private static final UUID LWW_UUID = UUID.newName("lww");
-	private static final UUID DELTA_UUID = UUID.newName("d");
+	public static final UUID DELTA_UUID = UUID.newName("d");
 
 //	func (lww LWW) Features() int {
 //		return ron.ACID_FULL

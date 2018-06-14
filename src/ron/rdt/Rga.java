@@ -191,8 +191,11 @@ public class Rga implements Reducer {
 			result.appendStateHeader(spec);
 			// take removed event ids
 			UUID[] refs = new UUID[this.rms.size()];
+			int k = 0;
 			for (var ref : this.rms.keySet()) {
-				refs = Frame.append(refs, ref);
+//				refs = Frame.append(refs, ref);
+				refs[k] = ref;
+				k++;
 			}
 //			sort.Sort(RevOrderedUUIDSlice(refs))
 			Arrays.sort(refs, revOrderedUUIDSlice());
@@ -208,9 +211,11 @@ public class Rga implements Reducer {
 		}
 
 		this.ins = Frame.slice(pending, 0 , 0); // reuse memory
-		for (var x : this.traps.keySet()) {
-			this.traps.remove(x);
-		}
+//		for (var x : this.traps.keySet()) {
+//			this.traps.remove(x);
+//		}
+
+		this.traps.clear();
 
 		int l = produce.frames.length;
 		for (var i = 0; i < pending.length; i++) {

@@ -391,7 +391,9 @@ private static Atom[] append(Atom[] arr, Atom element) {
 	int _goto_targ = 0;
 
 	_goto: while (true) {
+
 	switch ( _goto_targ ) {
+
 	case 0:
 	if ( p == pe ) {
 		_goto_targ = 4;
@@ -873,7 +875,9 @@ case 5:
                      }
                  }
              }
-
+//             System.out.println("atoms " + Arrays.toString(frame.atoms));
+//             System.out.println("_atoms " + Arrays.toString(frame._atoms));
+             frame._atoms = frame.atoms;
              return frame;
     }
 
