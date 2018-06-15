@@ -877,6 +877,7 @@ case 5:
              }
 //             System.out.println("atoms " + Arrays.toString(frame.atoms));
 //             System.out.println("_atoms " + Arrays.toString(frame._atoms));
+	 // FIXME cause of Go slice we need to sync _atoms and atom
              frame._atoms = frame.atoms;
              return frame;
     }

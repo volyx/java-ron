@@ -15,12 +15,7 @@ public class VV implements Reducer {
 
 
 	public static Comparator<Frame> vvComparator() {
-		return new Comparator<Frame>() {
-			@Override
-			public int compare(Frame a, Frame b) {
-				return (int) (a.origin() - b.origin());
-			}
-		};
+		return Comparator.comparingLong(Frame::origin);
 	}
 
 
@@ -30,7 +25,7 @@ public class VV implements Reducer {
 
 	@Override
 	public Frame reduce(Batch batch) {
-				Spec spec = Frame.newSpec(
+		Spec spec = Frame.newSpec(
 				VV_UUID,
 				batch.frames[0].object(),
 				batch.frames[batch.frames.length - 1].event(),

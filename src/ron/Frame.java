@@ -491,6 +491,13 @@ public class Frame {
 		this.append(other);
 		other.term = tmpTerm;
 	}
+	public void appendReduced_ByRef(Frame other) {
+//		other = other.clone();
+		var tmpTerm = other.term;
+		other.term = TERM_REDUCED;
+		this.append(other);
+		other.term = tmpTerm;
+	}
 
 	public void appendEmptyReducedOp(Spec spec) {
     	spec = spec.clone();

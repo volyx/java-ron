@@ -27,14 +27,14 @@ public class Set implements Reducer {
 			ref = UUID.ZERO_UUID;
 		}
 		ret.appendStateHeader(Frame.newSpec(
-				SET_UUID,
-				batch.frames[0].object(),
-				batch.frames[batch.frames.length - 1].event(),
-				ref
-				));
+											SET_UUID,
+											batch.frames[0].object(),
+											batch.frames[batch.frames.length - 1].event(),
+											ref
+											));
 		this.heap.putAll(batch);
 		for (;!this.heap.eof();) {
-			ret.appendReduced(this.heap.current());
+			ret.appendReduced_ByRef(this.heap.current());
 			this.heap.nextPrim();
 		}
 		return ret.rewind();
