@@ -334,6 +334,7 @@ private static Atom[] append(Atom[] arr, Atom element) {
          switch (ps.state) {
                  case RON_error:
                      if (ps.pos!=0) {
+//						 frame._atoms = frame.atoms;
                          return frame;
                      }
                     
@@ -349,6 +350,7 @@ private static Atom[] append(Atom[] arr, Atom element) {
                      break;
                  case RON_FULL_STOP:
                      ps.state = RON_error;
+					 frame._atoms = frame.atoms;
                      return frame;
 
                  case RON_start:
@@ -363,6 +365,7 @@ private static Atom[] append(Atom[] arr, Atom element) {
                  if (!ps.streaming) {
                      ps.state = RON_error;
                  }
+				 frame._atoms = frame.atoms;
                  return frame;
              }
 
@@ -878,7 +881,7 @@ case 5:
 //             System.out.println("atoms " + Arrays.toString(frame.atoms));
 //             System.out.println("_atoms " + Arrays.toString(frame._atoms));
 	 // FIXME cause of Go slice we need to sync _atoms and atom
-             frame._atoms = frame.atoms;
+             frame._atoms = Frame.slice(frame.atoms, 0, 4);
              return frame;
     }
 

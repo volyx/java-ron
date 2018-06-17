@@ -2,6 +2,8 @@ package ron.rdt;
 
 import ron.*;
 
+import java.util.Arrays;
+
 // Set, fully commutative, with tombstones.
 // You can either add or remove an atom/tuple.
 // Equal elements possible.
@@ -34,7 +36,11 @@ public class Set implements Reducer {
 											));
 		this.heap.putAll(batch);
 		for (;!this.heap.eof();) {
-			ret.appendReduced_ByRef(this.heap.current());
+//			ret.appendReduced_ByRef(this.heap.current());
+			final Frame current = this.heap.current();
+//			System.out.println(current.string());
+//			System.out.println(Arrays.toString(current.atoms));
+			ret.appendReduced(current);
 			this.heap.nextPrim();
 		}
 		return ret.rewind();

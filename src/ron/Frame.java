@@ -295,7 +295,7 @@ public class Frame {
 		boolean do_redef = (flags & FORMAT_REDEFAULT) != 0;
 
 		int k = 4;
-		if (spec[SPEC_TYPE] == new Atom(COMMENT_UUID)) {
+		if (spec[SPEC_TYPE].equals(new Atom(COMMENT_UUID))) {
 			k = 1;
 		}
 
@@ -486,13 +486,6 @@ public class Frame {
 
 	public void appendReduced(Frame other) {
 		other = other.clone();
-		var tmpTerm = other.term;
-		other.term = TERM_REDUCED;
-		this.append(other);
-		other.term = tmpTerm;
-	}
-	public void appendReduced_ByRef(Frame other) {
-//		other = other.clone();
 		var tmpTerm = other.term;
 		other.term = TERM_REDUCED;
 		this.append(other);

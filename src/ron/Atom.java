@@ -39,18 +39,18 @@ public class Atom extends UUID {
 	// a[half] |= uint64(value) << DIGIT_OFFSETS[dgt] /
 	public void set6(int half, int dgt, long value) {
 		uuid[half] = uuid[half]  | (value << DIGIT_OFFSETS[dgt]); // FIXME reverse numbering
-		// System.out.println("set6 " + uuid[half] + " half " + half);
+//		 System.out.println("set6 " + uuid[half] + " half " + half);
 
 	}
 
 	public void set2(int half, int idx, long value) {
 		uuid[half] |= value << (idx << 1);
-		// System.out.println("set2 " + Long.toUnsignedString(uuid[half]) + " half " + half);
+		 // System.out.println("set2 " + Long.toUnsignedString(uuid[half]) + " half " + half);
 	}
 
 	public void trim6(int half, int dgt) {
 		uuid[half] &= INT60_FLAGS | PREFIX_MASKS[dgt];
-		// System.out.println("trim6 " + uuid[half] + " half " + half);
+		 // System.out.println("trim6 " + uuid[half] + " half " + half);
 	}
 
 	public long get6(int half, int dgt) {
@@ -59,7 +59,7 @@ public class Atom extends UUID {
 
 	public void init64(int half, long flags) {
 		uuid[half] = flags << 60;
-		// System.out.println("init64 " + uuid[half]+ " half " + half );
+		 // System.out.println("init64 " + uuid[half]+ " half " + half );
 	}
 
 
@@ -67,18 +67,18 @@ public class Atom extends UUID {
 		uuid[half] &= uuid[half] ^ (15L << (idx << 2));
 //		uuid[half] = value << 60;
 		uuid[half] |= value << (idx << 2);
-		// System.out.println("reset4 " + uuid[half] + " half " + half);
+		 // System.out.println("reset4 " + uuid[half] + " half " + half);
 	}
 
 	public void arab64(int half, long value) {
 		uuid[half] *= 10;
 		uuid[half] += value;
-		// System.out.println("arab64 " + uuid[half]+ " half " + half);
+		 // System.out.println("arab64 " + uuid[half]+ " half " + half);
 	}
 
 	public void set1(int half, int idx) {
 		uuid[half] = uuid[half] | (1L << idx);
-				// System.out.println("set1 " + uuid[half]+ " half " + half);
+				 // System.out.println("set1 " + uuid[half]+ " half " + half);
 
 	}
 
@@ -88,7 +88,7 @@ public class Atom extends UUID {
 		i++;
 		uuid[half] &= uuid[half] ^ (INT16_FULL << shift);
 		uuid[half] |= (i & INT16_FULL) << shift;
-				// System.out.println("inc16 " + uuid[half]+ " half " + half);
+				 // System.out.println("inc16 " + uuid[half]+ " half " + half);
 
 	}
 
@@ -98,12 +98,12 @@ public class Atom extends UUID {
 		i += value;
 		uuid[half] &= uuid[half] ^ INT16_FULL;
 		uuid[half] |= i & INT16_FULL;
-		// System.out.println("arab16 " + uuid[half]+ " half " + half);
+		 // System.out.println("arab16 " + uuid[half]+ " half " + half);
 	}
 
 	public void set32(int half, int idx, long value) {
 		uuid[half] |= value << (idx << 5);
-		// System.out.println("set32 " + uuid[half]+ " half " + half);
+		 // System.out.println("set32 " + uuid[half]+ " half " + half);
 	}
 
 	public void setOrigin(long origin) {

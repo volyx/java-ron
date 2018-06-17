@@ -52,7 +52,7 @@ public class CausalSetTest {
 			},
 		};
 		var cs = CausalSet.makeCausalSetReducer();
-		for (int i = 0; i < tests.length; i++) {
+		for (var i = 0; i < tests.length; i++) {
 			var test = tests[i];
 			var inputs = Arrays.copyOfRange(test, 0, test.length - 1);
 			var batch = Parse.parseStringBatch(inputs);

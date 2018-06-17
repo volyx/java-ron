@@ -16,11 +16,11 @@ public class VVectorTest {
 		if (!vec.getUUID(A).string().equals("4+A")) {
 			Assert.fail();
 		}
-		UUID pB = Parse.parseUUIDString("+B");
+		var pB = Parse.parseUUIDString("+B");
 		if (!vec.getUUID(pB).string().equals("2+B")) {
 			Assert.fail();
 		}
-		UUID mB = Parse.parseUUIDString("-B");
+		var mB = Parse.parseUUIDString("-B");
 		if (!vec.getUUID(mB).string().equals("3-B")) {
 			Assert.fail();
 		}

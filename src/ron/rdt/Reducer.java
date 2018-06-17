@@ -1,6 +1,7 @@
 package ron.rdt;
 
 import ron.Batch;
+import ron.Frame;
 
 public interface Reducer {
 	//
@@ -8,5 +9,5 @@ public interface Reducer {
 	//		return ron.ACID_FULL
 	//	}
 	//
-	ron.Frame reduce(Batch batch);
+	Frame reduce(Batch batch);
 }
