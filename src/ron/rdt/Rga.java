@@ -199,7 +199,7 @@ public class Rga implements Reducer {
 			}
 //			sort.Sort(RevOrderedUUIDSlice(refs))
 			Arrays.sort(refs, revOrderedUUIDSlice());
-			System.out.println(Arrays.toString(refs));
+//			System.out.println(Arrays.toString(refs));
 //			// scan, append
 			for (var key : refs) {
 				spec.setRef(key);
