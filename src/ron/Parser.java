@@ -5,6 +5,7 @@ package ron;
 
 import java.util.Arrays;
 import static ron.Const.*;
+import static ron.Frame.append;
 import static ron.UUID.UUID_NAME_FLAG;
 import static ron.UUID.ZERO_UUID;
 
@@ -23,9 +24,9 @@ public static final int VALUE = 0;
 public static final int	ORIGIN = 1;
 
 
-// line 24 "ragel/java-parser.rl"
+// line 25 "ragel/java-parser.rl"
 
-// line 29 "java/src/ron/Parser.java"
+// line 30 "java/src/ron/Parser.java"
 private static byte[] init__RON_actions_0()
 {
 	return new byte [] {
@@ -313,18 +314,14 @@ static final int RON_error = 0;
 static final int RON_en_main = 14;
 
 
-// line 25 "ragel/java-parser.rl"
-
 // line 26 "ragel/java-parser.rl"
 
 // line 27 "ragel/java-parser.rl"
 
 // line 28 "ragel/java-parser.rl"
 
+// line 29 "ragel/java-parser.rl"
 
-private static Atom[] append(Atom[] arr, Atom element) {
-    return Frame.append(arr, element);
-}
 
  public static Frame parseFrame(Frame frame) {
 
@@ -334,29 +331,27 @@ private static Atom[] append(Atom[] arr, Atom element) {
          switch (ps.state) {
                  case RON_error:
                      if (ps.pos!=0) {
-//						 frame._atoms = frame.atoms;
                          return frame;
                      }
                     
-// line 337 "java/src/ron/Parser.java"
+// line 338 "java/src/ron/Parser.java"
 	{
 	( ps.state) = RON_start;
 	}
 
-// line 41 "ragel/java-parser.rl"
+// line 42 "ragel/java-parser.rl"
                      frame.position = -1;
                      // frame.atoms = frame._atoms[:4]
-                     frame.atoms = Frame.slice(frame._atoms, 0, 4);
+                     frame.atoms = Frame.slice(frame.atoms, 0, 4);
                      break;
                  case RON_FULL_STOP:
                      ps.state = RON_error;
-					 frame._atoms = frame.atoms;
                      return frame;
 
                  case RON_start:
                      ps.off = ps.pos;
                      // frame.atoms = frame._atoms[:4];
-                     frame.atoms = Frame.slice(frame._atoms, 0, 4);
+                     frame.atoms = Frame.slice(frame.atoms, 0, 4);
                      ps.atm = 0; ps.hlf = 0; ps.dgt = 0;
                      break;
              }
@@ -365,7 +360,6 @@ private static Atom[] append(Atom[] arr, Atom element) {
                  if (!ps.streaming) {
                      ps.state = RON_error;
                  }
-				 frame._atoms = frame.atoms;
                  return frame;
              }
 
@@ -384,7 +378,7 @@ private static Atom[] append(Atom[] arr, Atom element) {
              int p = ps.pos;
 
             
-// line 381 "java/src/ron/Parser.java"
+// line 382 "java/src/ron/Parser.java"
 	{
 	int _klen;
 	int _trans = 0;
@@ -394,9 +388,7 @@ private static Atom[] append(Atom[] arr, Atom element) {
 	int _goto_targ = 0;
 
 	_goto: while (true) {
-
 	switch ( _goto_targ ) {
-
 	case 0:
 	if ( p == pe ) {
 		_goto_targ = 4;
@@ -748,7 +740,7 @@ case 1:
         { p += 1; _goto_targ = 5; if (true)  continue _goto;}
     }
 	break;
-// line 743 "java/src/ron/Parser.java"
+// line 744 "java/src/ron/Parser.java"
 			}
 		}
 	}
@@ -831,7 +823,7 @@ case 4:
 	{
     }
 	break;
-// line 826 "java/src/ron/Parser.java"
+// line 827 "java/src/ron/Parser.java"
 		}
 	}
 	}
@@ -841,7 +833,7 @@ case 5:
 	break; }
 	}
 
-// line 84 "ragel/java-parser.rl"
+// line 85 "ragel/java-parser.rl"
 
 
              ps.atm = atm; ps.hlf = hlf; ps.dgt = dgt;
@@ -854,7 +846,7 @@ case 5:
                      break;
                  case RON_FULL_STOP:
                  case RON_start:
-                 	break;
+                    break;
                  default:
                      if (ps.state>=RON_first_final) { // one of end states
                           if (!ps.streaming && p>=eof) {
@@ -870,7 +862,7 @@ case 5:
                      }
              }
 
-             //fmt.Println("omits", frame.IsComplete(), frame.term!=TERM_REDUCED,  ps.omitted, frame.Parser.state)
+             // System.out.println("omits "+ frame.IsComplete() + " " + frame.term!=TERM_REDUCED +  ps.omitted + frame.Parser.state)
              if (IsComplete(frame) && frame.term != TERM_REDUCED && ps.omitted!=0) {
                  for (int u = 0; u < 4; u++) {
                      if ((ps.omitted & (1<<u)) != 0) {
@@ -878,10 +870,7 @@ case 5:
                      }
                  }
              }
-//             System.out.println("atoms " + Arrays.toString(frame.atoms));
-//             System.out.println("_atoms " + Arrays.toString(frame._atoms));
-	 // FIXME cause of Go slice we need to sync _atoms and atom
-             frame._atoms = Frame.slice(frame.atoms, 0, 4);
+
              return frame;
     }
 
@@ -891,9 +880,9 @@ case 5:
     }
 
       
-// line 129 "ragel/java-parser.rl"
+// line 131 "ragel/java-parser.rl"
       
-// line 884 "java/src/ron/Parser.java"
+// line 886 "java/src/ron/Parser.java"
 private static byte[] init__UUID_actions_0()
 {
 	return new byte [] {
@@ -1020,7 +1009,7 @@ static final int UUID_error = 0;
 static final int UUID_en_main = 1;
 
 
-// line 130 "ragel/java-parser.rl"
+// line 132 "ragel/java-parser.rl"
 
 
     // func ()
@@ -1037,12 +1026,12 @@ static final int UUID_en_main = 1;
         Atom[] atoms = new Atom[] {new Atom(ctx_uuid)};
 
     	
-// line 1028 "java/src/ron/Parser.java"
+// line 1030 "java/src/ron/Parser.java"
 	{
 	cs = UUID_start;
 	}
 
-// line 1033 "java/src/ron/Parser.java"
+// line 1035 "java/src/ron/Parser.java"
 	{
 	int _klen;
 	int _trans = 0;
@@ -1181,7 +1170,7 @@ case 1:
 	atoms[atm].reset4(ORIGIN, 15, ABC[data[p]]);
     }
 	break;
-// line 1172 "java/src/ron/Parser.java"
+// line 1174 "java/src/ron/Parser.java"
 			}
 		}
 	}
@@ -1218,7 +1207,7 @@ case 4:
         atoms[atm].setOrigin(UUID_NAME_FLAG);
     }
 	break;
-// line 1209 "java/src/ron/Parser.java"
+// line 1211 "java/src/ron/Parser.java"
 		}
 	}
 	}
@@ -1228,7 +1217,7 @@ case 5:
 	break; }
 	}
 
-// line 152 "ragel/java-parser.rl"
+// line 154 "ragel/java-parser.rl"
 
 
         if (cs < UUID_first_final || dgt > 10) {

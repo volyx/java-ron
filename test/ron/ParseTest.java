@@ -22,12 +22,12 @@ public class ParseTest {
 
 	@Test
 	public void TestParseUUID() {
-		UUID uuidA = Parse.parseUUID("1".getBytes(StandardCharsets.UTF_8));
-		if (uuidA.value() != (1L << 54) || uuidA.origin() != 0 || uuidA.scheme() != Const.UUID_NAME) {
+		UUID uuidA = Parse.parseUUIDString("1");
+		if (uuidA.value() != (1L << 54) || uuidA.origin() != 0 || !uuidA.isName()) {
 			Assert.fail("Fail");
 		}
-		UUID uuidAB = Parse.parseUUID(uuidA, ")1".getBytes(StandardCharsets.UTF_8));
-		if ((uuidAB.value() != ((1L << 54) | 1L)) || uuidAB.origin() != 0 || uuidAB.scheme() != Const.UUID_NAME) {
+		UUID uuidAB = Parse.parseUUIDString(uuidA, ")1");
+		if ((uuidAB.value() != ((1L << 54) | 1L)) || uuidAB.origin() != 0 || !uuidAB.isName()) {
 			Assert.fail("Fail " + uuidAB.value());
 		}
 		UUID hello = Parse.parseUUIDString("hello-111");

@@ -34,7 +34,7 @@ public class Frame {
     public int position;
     // ints hosts the current op: 4 pairs for spec uuid entries, the rest is values (also pairs).
     // General convention: hte first int is hte value, the second is flags and other stuff.
-    public Atom[] _atoms = new Atom[DEFAULT_ATOMS_ALLOC];
+//    public Atom[] _atoms = new Atom[DEFAULT_ATOMS_ALLOC];
     public Atom[] atoms = new Atom[DEFAULT_ATOMS_ALLOC];
     // Op terminator (see OP_TERM)
     public int term;
@@ -44,13 +44,11 @@ public class Frame {
     public Frame() {
 		this.Serializer = new SerializeState();
 		this.Parser = new ParserState();
-		for (int i = 0; i < _atoms.length; i++) {
-            _atoms[i] = new Atom(0L, 0L);
-        }
-//        for (int i = 0; i < atoms.length; i++) {
-//            atoms[i] = new Atom(0L, 0L);
+//		for (int i = 0; i < _atoms.length; i++) {
+//            _atoms[i] = new Atom(0L, 0L);
 //        }
-        atoms = new Atom[0];
+
+        atoms = init(0, 4);
 		this.Body = new Slice(new byte[0]);
     }
     public Frame(Atom[] atoms, int term) {
@@ -84,6 +82,14 @@ public class Frame {
 		ret.Parser.streaming = true;
 		//ret.Parser.state = RON_start
 		return ret;
+	}
+
+	public static Atom[] init(int s, int e) {
+    	Atom[] atoms = new Atom[e];
+		for (int i = 0; i < e; i++) {
+			atoms[i] = new Atom(0L, 0L);
+		}
+		return atoms;
 	}
 
 	public Spec spec() {
@@ -192,7 +198,7 @@ public class Frame {
 		}
 
 		if (this.atoms.length == 0) {
-			this.atoms = slice(this._atoms, 0, 4);
+			this.atoms = init( 0, 4);
 		}
 		this.appendSpec(other);
 
@@ -775,7 +781,6 @@ public class Frame {
 		clone.Serializer = new SerializeState(this.Serializer);
 		clone.term = this.term;
 		clone.binary = this.binary;
-		clone._atoms = copy(this._atoms);
 		clone.atoms = copy(this.atoms);
 		clone.position = this.position;
 		int l = this.Body.length();

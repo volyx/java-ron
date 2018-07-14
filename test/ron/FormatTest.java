@@ -99,10 +99,14 @@ public class FormatTest {
 
 		};
 		for (int k = 0; k < formats.length; k++) {
-			Sample f = formats[k];
-			Frame frame = Frame.openFrame(new Slice(framestr.getBytes(StandardCharsets.UTF_8)));
-			Frame formatted = Frame.makeFormattedFrame(f.flags, 1024);
+			final Sample f = formats[k];
+			final Frame frame = Frame.openFrame(new Slice(framestr.getBytes(StandardCharsets.UTF_8)));
+			final Frame formatted = Frame.makeFormattedFrame(f.flags, 1024);
 			for (;!frame.eof();) {
+				for (Atom a : frame.atoms) {
+					System.out.print(Long.toUnsignedString(a.uuid[0]) + "," + Long.toUnsignedString(a.uuid[1]) + " ");
+				}
+				System.out.println();
 				formatted.append(frame);
 				frame.next();
 			}
@@ -110,8 +114,5 @@ public class FormatTest {
 				Assert.fail(String.format("incorrect format at %d\n---\n%s\n---should be---\n%s\n\nparsed as %s\n", k, formatted.string(), f.correct, formatted.rewind().reformat(FRAME_FORMAT_CARPET).string()));
 			}
 		}
-
-
 	}
-
 }
