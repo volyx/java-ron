@@ -63,9 +63,11 @@ public class SetTest {
 		for (int i = 0; i < tests.length; i++) {
 			var test = tests[i];
 			String[] inputs = Arrays.copyOfRange(test, 0, test.length -1);
-			Batch batch = Parse.parseStringBatch(inputs);
+			var batch = Parse.parseStringBatch(inputs);
 			Frame result = cs.reduce(batch);
 			if (!result.string().equals(test[test.length - 1])) {
+				System.err.println("got  " + result.string());
+				System.err.println("want " + test[test.length - 1]);
 				Frame expectedNoFormat = Parse.parseFrameString(test[test.length - 1]);
 //				Frame expectedFormated = Frame.makeFormattedFrame(FRAME_FORMAT_CARPET, 1024);
 				Frame expectedFormated = expectedNoFormat.reformat(FRAME_FORMAT_CARPET);
@@ -76,38 +78,6 @@ public class SetTest {
 				System.err.println(result.string().length() + " != " + test[test.length - 1].length());
 				Assert.fail(String.format("%d set reduce fail, \ngot\n'%s' \nwant\n'%s'\n", i, result.reformat(FRAME_FORMAT_CARPET).string(), expectedFormated.string()));
 			}
-		}
-	}
-
-	@Test
-	public void TestMouseSet_Reduce() {
-		var tests = new String[][]{
-
-			{
-				"*set#mice@1YKDY54a01+1YKDY5!>mouse$1YKDY5",
-						"*set#mice@1YKDXO3201+1YKDXO?!@>mouse$1YKDXO@(WBF901(WBY>mouse$1YKDWBY@[67H01[6>mouse$1YKDW6@(Uh4j01(Uh>mouse$1YKDUh@(S67V01(S6>mouse$1YKDS6@(Of(N3:1YKDN3DS01+1YKDN3,@(MvBV01(IuJ:0>mouse$1YKDIuJ@(LF:1YKDIuEY01+1YKDIuJ,:{A601,@(Io5l01[oA:0>mouse$1YKDIoA@[l7_01[l>mouse$1YKDIl@(57(4B:1YKD4B3f01+1YKD4B,@(0bB401+1YKCsd:0>mouse$1YKCsd@1YKCu6+:1YKCsd7Q01+1YKCsd,",
-						"*set#mice@1YKDXO3201+1YKDXO!@(Y54a01(Y5>mouse$1YKDY5@(XO3201(XO>mouse$1YKDXO@(WBF901(WBY>mouse$1YKDWBY@[67H01[6>mouse$1YKDW6@(Uh4j01(Uh>mouse$1YKDUh@(S67V01(S6>mouse$1YKDS6@(Of(N3:1YKDN3DS01+1YKDN3,@(MvBV01(IuJ:0>mouse$1YKDIuJ@(LF:1YKDIuEY01+1YKDIuJ,:{A601,@(Io5l01[oA:0>mouse$1YKDIoA@[l7_01[l>mouse$1YKDIl@(57(4B:1YKD4B3f01+1YKD4B,@(0bB401+1YKCsd:0>mouse$1YKCsd@1YKCu6+:1YKCsd7Q01+1YKCsd,",
-			},
-		};
-		var cs = makeSetReducer();
-		for (int i = 0; i < tests.length; i++) {
-			var test = tests[i];
-			String[] inputs = Arrays.copyOfRange(test, 0, test.length -1);
-			Batch batch = Parse.parseStringBatch(inputs);
-			System.out.println(batch.frames[1].string());
-			System.out.println(Arrays.toString(batch.frames[1].atoms));
-			Frame result = cs.reduce(batch);
-//			if (!result.string().equals(test[test.length - 1])) {
-//				Frame expectedNoFormat = Parse.parseFrameString(test[test.length - 1]);
-////				Frame expectedFormated = Frame.makeFormattedFrame(FRAME_FORMAT_CARPET, 1024);
-//				Frame expectedFormated = expectedNoFormat.reformat(FRAME_FORMAT_CARPET);
-////				for (;!expectedNoFormat.eof();) {
-////					expectedFormated.append(expectedNoFormat);
-////					expectedNoFormat.next();
-////				}
-//				System.err.println(result.string().length() + " != " + test[test.length - 1].length());
-//				Assert.fail(String.format("%d set reduce fail, \ngot\n'%s' \nwant\n'%s'\n", i, result.reformat(FRAME_FORMAT_CARPET).string(), expectedFormated.string()));
-//			}
 		}
 	}
 
@@ -127,5 +97,4 @@ public class SetTest {
 				"01-set-basic.ron"
 				);
 	}
-
 }

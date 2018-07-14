@@ -538,7 +538,7 @@ case 1:
 // line 10 "ragel/../ragel/base-grammar.rl"
 	{
         if (atm>0) {
-            atoms[atm] = atoms[atm-1];
+            atoms[atm] = atoms[atm-1].clone();
         }
     }
 	break;
@@ -673,9 +673,9 @@ case 1:
 // line 98 "ragel/../ragel/base-grammar.rl"
 	{
         if (atm==4) {
-            atoms[atm] = atoms[SPEC_OBJECT];
+            atoms[atm] = atoms[SPEC_OBJECT].clone();
         } else if (atoms[atm-1].Type()==ATOM_UUID) {
-            atoms[atm] = atoms[atm-1];
+            atoms[atm] = atoms[atm-1].clone();
         }
     }
 	break;
