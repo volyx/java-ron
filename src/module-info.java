@@ -1,2 +1,3 @@
 module ron {
+	exports ron;
 }
