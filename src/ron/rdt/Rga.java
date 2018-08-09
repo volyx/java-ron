@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
-import static ron.Frame.append;
 import static ron.UUID.ZERO_UUID;
 
 // RGA is a Replicated Growable Array data type, an ordered collection of anything
@@ -25,16 +24,13 @@ public class Rga implements Reducer {
 	private Map<UUID, Integer> traps;// points to an offset at ins
 
 	public static UUID RGA_UUID = UUID.newName("rga");
-	public static UUID RM_UUID = UUID.newName("rm");
-	public static Atom[] NO_ATOMS = new Atom[]{};
+	private static UUID RM_UUID = UUID.newName("rm");
 
 	public static Reducer makeRGAReducer() {
 		var rga = new Rga();
 		rga.active = FrameArrayHeap.makeFrameHeap(FrameArrayHeap.eventComparatorDesc(), FrameArrayHeap.refComparatorDesc(), 2);
-//		rga.rms = make(map[ron.UUID]ron.UUID)
 		rga.rms = new HashMap<>();
 		rga.ins = new Frame[32];
-//		rga.traps = make(map[ron.UUID]int)
 		rga.traps =  new HashMap<>();
 		return rga;
 	}
@@ -55,47 +51,25 @@ public class Rga implements Reducer {
 	}
 
 	public Comparator<Frame> refOrderedBatch() {
-		return new Comparator<Frame>() {
-			@Override
-			public int compare(Frame i, Frame j) {
-//				final boolean less = j.ref().laterThan(i.ref());
-				final boolean less = j.ref().laterThan(i.ref());
-//				return j.compare(i);
-				return (less) ? -1 : 1;
-			}
+		return (i, j) -> {
+			final boolean less = j.ref().laterThan(i.ref());
+			return (less) ? -1 : 1;
 		};
 	}
-
-//	type RefOrderedBatch []*ron.Frame
-//
-//	func (b RefOrderedBatch) Len() int           { return len(b) }
-//	func (b RefOrderedBatch) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
-//	func (b RefOrderedBatch) Less(i, j int) bool { return b[j].Ref().LaterThan(b[i].Ref()) }
-//
-//	type RevOrderedUUIDSlice []ron.UUID
-//
-//	func (b RevOrderedUUIDSlice) Len() int           { return len(b) }
-//	func (b RevOrderedUUIDSlice) Swap(i, j int)      { b[i], b[j] = b[j], b[i] }
-//	func (b RevOrderedUUIDSlice) Less(i, j int) bool { return b[i].LaterThan(b[j]) }
 
 	public Comparator<UUID> revOrderedUUIDSlice() {
-		return new Comparator<UUID>() {
-			@Override
-			public int compare(UUID i, UUID j) {
-				final boolean less = i.laterThan(j);
-				return (less) ? 1 : -1;
-//				return (less) ? -1 : 1;
-			}
+		return (i, j) -> {
+			final boolean less = i.laterThan(j);
+			return (less) ? 1 : -1;
 		};
 	}
-//
+
 	// Reduce RGA frames
 	@Override
 	public Frame reduce(Batch batch) {
-//		batch = batch.clone();
 		var rdtype = batch.frames[0].type();
 		var object = batch.frames[0].object();
-		var event = batch.frames[batch.frames.length - 1].event();
+		var event  = batch.frames[batch.frames.length - 1].event();
 //		// multiframe parts must be atomically applied, hence same version id
 		Spec spec = Frame.newSpec(rdtype, object, event, ZERO_UUID);
 		Frame[] _produce = new Frame[4];
@@ -124,22 +98,26 @@ public class Rga implements Reducer {
 		}
 
 
-//		sort.Sort(RefOrderedBatch(pending))
 		Arrays.sort(pending, refOrderedBatch());
-//		System.out.println(Arrays.toString(pending));
+//		System.out.println(Arrays.stream(pending).map(Frame::string).reduce((s, s2) -> s + "\n" + s2).get());
 		for (var i = pending.length - 1; i >= 0; i--) {
 			this.traps.put(pending[i].ref(),  i);
 			// 	rga.traps[pending[i].Ref()] = i
+//			System.out.printf("%s to %d\n", pending[i].ref().string(), i);
 		}
+//		System.out.println(this.traps);
 
 		for (var i = 0; i < pending.length;) {
-			Frame result = Frame.makeFrame(1024);
+			final Frame result = Frame.makeFrame(1024);
 
-			UUID at = pending[i].ref();
+			final UUID at = pending[i].ref();
+			System.out.printf("At %s\n", at.string());
 			for (; i < pending.length && !pending[i].eof() && pending[i].ref().equals(at); i++) {
 				this.active.putFrame(pending[i]);
+//				System.out.printf("put active %s, ref %s\n", pending[i], pending[i].ref().string());
 			}
 			this.traps.remove(at);
+//			System.out.printf("remove trap %s\n", at.string());
 
 			spec.setRef(at);
 			spec.setEvent(event);
@@ -162,12 +140,15 @@ public class Rga implements Reducer {
 					this.rms.remove(ev);
 				}
 
+//				System.out.println("pushWithTerm " + op.string());
 				result.appendReducedRef(ref, op);
+
 				this.active.nextPrim();
 
 				for (var t = this.traps.get(ev); (t != null) && t < pending.length; t++) {
 					if (!pending[t].eof() && pending[t].ref().equals(ev)) {
 						this.active.putFrame(pending[t]);
+//						System.out.printf("put active %s, ref %s\n", pending[i], pending[i].ref().string());
 					} else {
 						break;
 					}
@@ -175,7 +156,6 @@ public class Rga implements Reducer {
 
 			}
 
-//			produce.frames = Frame.append(produce.frames, result.rewind());
 			produce = new Batch(Frame.append(produce.frames, result.rewind()));
 
 			for (;i < pending.length && pending[i].eof();) {
@@ -197,7 +177,6 @@ public class Rga implements Reducer {
 				refs[k] = ref;
 				k++;
 			}
-//			sort.Sort(RevOrderedUUIDSlice(refs))
 			Arrays.sort(refs, revOrderedUUIDSlice());
 //			System.out.println(Arrays.toString(refs));
 //			// scan, append
@@ -239,25 +218,6 @@ public class Rga implements Reducer {
 		// [ ] TODO safety: ceil for inserted subtrees - unified sanity checker
 	}
 
-//	type TxtMapper struct {
-//	}
-//
-//	func (txt TxtMapper) Map(batch ron.Batch) string {
-//		if len(batch) == 0 {
-//			return ""
-//		}
-//		rga := batch[0]
-//		if rga.Type() != RGA_UUID || !rga.IsHeader() {
-//			return ""
-//		}
-//		ret := []byte{}
-//		for rga.Next(); !rga.EOF() && !rga.IsHeader(); rga.Next() {
-//			if rga.Ref().IsZero() {
-//				ret = append(ret, rga.RawString(0)...)
-//			}
-//		}
-//		return string(ret)
-//	}
 //
 //	func init() {
 //		ron.RDTYPES[RGA_UUID] = MakeRGAReducer

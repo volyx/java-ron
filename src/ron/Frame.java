@@ -480,12 +480,7 @@ public class Frame {
 
 	public void appendEmpty(Spec spec, int term) {
 		spec = spec.clone();
-//		Atom[] atoms = new Atom[6];
-//		Atom[] atoms = new Atom[6];
 		Atom[] atoms = copy(slice(spec.spec, 0, 4));
-//		atoms = copy(spec);
-//		spec.spec =
-//		System.arraycopy(spec.spec, 0, atoms, 0, 4);
 		Frame tmp = new Frame(atoms, term);
 		this.append(tmp);
 	}
@@ -503,29 +498,17 @@ public class Frame {
 		this.appendEmpty(spec, TERM_REDUCED);
 	}
 
-	public void appendReducedRef(UUID ref, Frame other) {
-    	ref = ref.clone();
-    	other = other.clone();
-		Atom tmpRef = other.atoms[SPEC_REF];
-		int tmpTerm = other.term;
+	public void appendReducedRef(final UUID ref, final Frame other) {
+//    	ref = ref.clone();
+//    	other = other.clone();
+		final Atom tmpRef = other.atoms[SPEC_REF];
+		final int tmpTerm = other.term;
 		other.atoms[SPEC_REF] = new Atom(ref);
 		other.term = TERM_REDUCED;
 		this.append(other);
 		other.atoms[SPEC_REF] = tmpRef;
 		other.term =  tmpTerm;
 	}
-
-//	func (frame *Frame) AppendReducedOpInt(spec Spec, value int64) {
-//		frame.AppendSpecValT(spec, NewIntegerAtom(value), TERM_REDUCED)
-//	}
-//
-//	func (frame *Frame) AppendReducedOpUUID(spec Spec, value UUID) {
-//		frame.AppendSpecValT(spec, NewUUIDAtom(value), TERM_REDUCED)
-//	}
-//
-//	func (frame *Frame) AppendStateHeader(spec Spec) {
-//		frame.AppendEmpty(spec, TERM_HEADER)
-//	}
 
 	public void appendStateHeader(Spec spec) {
 		spec = spec.clone();

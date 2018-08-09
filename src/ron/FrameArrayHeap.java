@@ -20,7 +20,7 @@ public class FrameArrayHeap implements IHeap {
 		return ret;
 	}
 
-	public boolean less(int i, int j) {
+	private boolean less(int i, int j) {
 		var c = this.primary.compare(this.iters[i], this.iters[j]);
 		if (c == 0) {
 			if (this.secondary != null) {
@@ -30,11 +30,10 @@ public class FrameArrayHeap implements IHeap {
 				c = j - i;
 			}
 		}
-		//fmt.Printf("CMP %s %s GOT %d\n", this.iters[i].OpString(), this.iters[j].OpString(), c)
 		return c < 0;
 	}
 
-	public void sink(int i) {
+	private void sink(int i) {
 		var to = i;
 		var j = i << 1;
 		if (j < this.iters.length && this.less(j, i)) {
@@ -50,7 +49,7 @@ public class FrameArrayHeap implements IHeap {
 		}
 	}
 
-	public void raise(int i) {
+	private void raise(int i) {
 		var j = i >> 1;
 		if (j > 0 && this.less(i, j)) {
 			this.swap(i, j);
@@ -64,12 +63,11 @@ public class FrameArrayHeap implements IHeap {
 		return this.iters.length - 1;
 	}
 
-	public void swap(int i, int j) {
-		//fmt.Printf("SWAP %d %d\n", i, j)
+	private void swap(int i, int j) {
 		swap(this.iters, i, j);
 	}
 
-	public static final <T> void swap(T[] a, int i, int j) {
+	private static <T> void swap(T[] a, int i, int j) {
 		T t = a[i];
 		a[i] = a[j];
 		a[j] = t;
@@ -82,8 +80,7 @@ public class FrameArrayHeap implements IHeap {
 		}
 	}
 
-	public void put(Frame i) {
-//		i = i.clone();
+	private void put(Frame i) {
 		for (; ; ) {
 			if (!i.eof() && (i.isHeader() || i.isQuery())) {
 				i.next();
@@ -107,7 +104,7 @@ public class FrameArrayHeap implements IHeap {
 		}
 	}
 
-	public void remove(int i) {
+	private void remove(int i) {
 		this.iters[i] = this.iters[this.iters.length - 1];
 		this.iters = Frame.slice(this.iters, 0,this.iters.length - 1);
 		this.sink(i);
@@ -122,8 +119,7 @@ public class FrameArrayHeap implements IHeap {
 		}
 	}
 
-	public void listEqs(int at, List<Integer> eqs) {
-//	*eqs = append(*eqs, at)
+	private void listEqs(int at, List<Integer> eqs) {
 		eqs.add(at);
 		var l = at << 1;
 		if (l < this.iters.length) {
