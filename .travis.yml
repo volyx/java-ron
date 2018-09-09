@@ -1,6 +1,6 @@
 language: java
 jdk:
 - oraclejdk10
-script: "mvn verify"
+#script: "mvn verify"
 after_success:
-- sh <(curl -s https://codecov.io/bash)
+- bash <(curl -s https://codecov.io/bash)
