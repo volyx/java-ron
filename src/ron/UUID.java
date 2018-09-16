@@ -159,7 +159,7 @@ public class UUID implements Comparable<UUID> {
 		return newUUID(UUID_NAME, time, origin);
 	}
 
-	public UUID newHashUUID(long time, long origin) {
+	public static UUID newHashUUID(long time, long origin) {
 		return newUUID(UUID_HASH, time, origin);
 	}
 
@@ -168,7 +168,7 @@ public class UUID implements Comparable<UUID> {
 		return Parse.parseUUIDString(name);
 	}
 
-	public UUID newError(String name) {
+	public static UUID newError(String name) {
 		UUID nam = Parse.parseUUIDString(name);
 		return newNameUUID(nam.value(), INT60_ERROR);
 	}
